@@ -1,0 +1,24 @@
+Tasks:
+	- Implement:
+		- spawn location
+			- Cardinals: N, NE, E, SE, S, SW, W, NW, C
+			- At least one tile free between each village
+			- display free spaces widthin each coordinates
+		- economic routes
+			- send invitations to economic collab
+			- unable to attack target until collab is over
+		- buildings:
+			- town hall
+				- turn wood and steel into upgrade points
+				- create lord [max 2 per village]
+			- mine
+			- forester lodge
+			- defence tower
+			- barracks
+			- storage
+		- upgrades
+			- troops
+				- defence
+				- attack
+				- movement speed
+				- spawn speed 
