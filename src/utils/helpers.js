@@ -21,8 +21,8 @@ const locationToString = location => `${location[0]}-${location[1]}`;
 
 const getRandomFromRange = ([min, max]) => Math.floor(Math.random() * (max - min + 1)) + min;
 
-
 export {
+	retry,
 	toIndex,
 	getCardinalSizes,
 	locationToString,

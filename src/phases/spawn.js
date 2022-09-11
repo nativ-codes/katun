@@ -1,19 +1,10 @@
-import {retry} from '../utils/helpers.js'
-
-const getSafeLocations = ({ location: [y, x] }) => [
-	[y, x],
-	[y+1, x],
-	[y, x+1],
-	[y+1, x+1],
-	[y-1, x-1],
-	[y, x-1],
-	[y-1, x],
-	[y-1, x+1],
-	[y+1, x-1],
-].filter(([y, x]) => y >= 0 && y < Map.HEIGHT && x >= 0 && x < Map.WIDTH);
+import {retry, getRandomFromRange, locationToString} from '../utils/helpers.js'
+import Mock from '../dev/mock.js';
+import Map from '../constants/map.js';
+import {getSafeLocations} from './travel.js';
 
 const getVillagesFromCardinalPoint = ({cardinalPointName}) => {
-	const {start, end} = CARDINAL_POINTS[cardinalPointName];
+	const {start, end} = Map.CardinalPoints[cardinalPointName];
 
 	return Mock.VILLAGES.filter(({location}) => location[0] >= start[0] && location[0] <= end[0] && location[1] >= start[1] && location[1] <= end[1])
 };
@@ -25,7 +16,7 @@ const checkValidSpawnLocation = ({location, villages}) => {
 }
 
 const generateValidSpawnLocation = ({cardinalPointName}) => {
-	const spawnArea = CARDINAL_POINTS[cardinalPointName];
+	const spawnArea = Map.CardinalPoints[cardinalPointName];
 	const location = getFirstValidSpawnLocation(spawnArea);
 
 	return {
@@ -70,7 +61,7 @@ const getFirstValidSpawnLocation = ({start, end, name}) => {
 }
 
 const getRandomSpawnedLocation = ({cardinalPointName}) => {
-	const spawnArea = CARDINAL_POINTS[cardinalPointName];
+	const spawnArea = Map.CardinalPoints[cardinalPointName];
 	const randomSpawnedLocation = [
 		getRandomFromRange([spawnArea.start[0], spawnArea.end[0]]),
 		getRandomFromRange([spawnArea.start[1], spawnArea.end[1]])
@@ -98,3 +89,9 @@ const spawn = ({cardinalPointName}) => {
 	console.log(`spawn::${spawnedLocation.location[0]}-${spawnedLocation.location[1]}`);
 	return spawnedLocation;
 }
+
+export {
+	checkValidSpawnLocationLeft,
+	spawn
+};
+

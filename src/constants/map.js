@@ -63,7 +63,7 @@ const CardinalPoints = {
 	}
 };
 
-export {
+export default {
 	CardinalPoints,
 	WIDTH,
 	HEIGHT	

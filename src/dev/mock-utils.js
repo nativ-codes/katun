@@ -1,5 +1,6 @@
-import {checkValidSpawnLocationLeft, spawn} from '../index.js'
+import {checkValidSpawnLocationLeft, spawn} from '../phases/spawn.js'
 import Mock from './mock.js';
+import Map from '../constants/map.js';
 
 // Populate area with villages
 const fillAreaWithVillages = cardinalPoint => {
@@ -20,9 +21,9 @@ const populateMap = () => {
 
 const printMap = () => Mock.MAP.reduce((mapString, row, y) => {
 	row.forEach((_, x) => {
-		Object.values(CARDINAL_POINTS).forEach(({start, end, symbol}) => {
+		Object.values(Map.CardinalPoints).forEach(({start, end, symbol}) => {
 			if(y >= start[0] && y <= end[0] && x >= start[1] && x <= end[1]) {
-				if(_villages.some(({location}) => location[0] === y && location[1] === x)) {
+				if(Mock.VILLAGES.some(({location}) => location[0] === y && location[1] === x)) {
 					mapString += 'O'.padEnd(3, ' ');
 				} else {
 					mapString += symbol.padEnd(3, ' ');
@@ -34,5 +35,6 @@ const printMap = () => Mock.MAP.reduce((mapString, row, y) => {
 }, '');
 
 export {
-	populateMap
+	populateMap,
+	printMap
 };

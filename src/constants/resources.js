@@ -1,23 +1,31 @@
+const Types = {
+	COMMON_RESOURCE: 'COMMON_RESOURCE',
+	RARE_RESOURCE: 'RARE_RESOURCE'
+};
+
 const WOOD = {
 	id: 0,
-	type: 'WOOD',
-	name: 'Wood'
+	type: Types.COMMON_RESOURCE,
+	name: 'WOOD',
+	label: 'Wood'
 };
 
 const IRON = {
 	id: 1,
-	type: 'IRON',
-	name: 'Iron'
+	type: Types.COMMON_RESOURCE,
+	name: 'IRON',
+	label: 'Iron'
 };
 
 const UPGRADE_POINTS = {
 	id: 2,
-	type: 'UPGRADE_POINTS',
-	name: 'Upgrade Points'
+	type: Types.RARE_RESOURCE,
+	name: 'UPGRADE_POINTS',
+	label: 'Upgrade Points'
 };
 
-
-export {
+export default {
+	Types,
 	WOOD,
 	IRON,
 	UPGRADE_POINTS

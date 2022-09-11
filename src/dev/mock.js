@@ -1,7 +1,8 @@
 import Map from '../constants/map.js';
 
 const MAP = Array(Map.HEIGHT).fill(Array(Map.WIDTH).fill(0));
-const VILLAGES =[{
+const VILLAGES = [];
+[{
 	location: [1, 4]
 }, {
 	location: [3, 5]
@@ -93,7 +94,7 @@ const VILLAGES =[{
 	location: [17, 17]
 }];
 
-export {
+export default {
 	VILLAGES,
 	MAP
 };
