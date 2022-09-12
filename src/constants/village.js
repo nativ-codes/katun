@@ -14,10 +14,10 @@ const DEFAULT_VILLAGE = {
 	}],
 	resources: [{
 		name: Resources.WOOD.name,
-		quantity: 200
+		count: 200
 	}, {
 		name: Resources.IRON.name,
-		quantity: 100
+		count: 100
 	}],
 	troops: []
 };

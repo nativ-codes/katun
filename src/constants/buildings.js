@@ -93,11 +93,33 @@ const DEFENSE_TOWER = {
 		3: {
 			defenseBonus: 0.2
 		}
-	}	
+	}
+};
+
+const WALLS = {
+	id: 6,
+	type: Types.DEFENSE,
+	name: 'WALLS',
+	label: 'Walls',
+	unlockAtTH: 2,
+	isDefaultBuilding: false,
+	buildLimit: 1,
+	levels: {
+		1: {
+			defenseBonus: 0.2
+		},
+		2: {
+			defenseBonus: 0.3
+		},
+		3: {
+			defenseBonus: 0.4
+		}
+	}
 };
 
 export default {
 	Types,
+	WALLS,
 	TOWN_HALL,
 	STORAGE,
 	FORESTER_LODGE,

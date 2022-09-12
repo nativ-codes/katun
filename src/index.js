@@ -30,44 +30,52 @@ console.log(getRandomFromRange([0,1]))
 
 const attackResult = attack({
 	attacker: {
-		troops: [{
-			name: Troops.LORD.name,
-			type: Troops.LORD.type,
-			quantity: 1,
-			level: 1
-		}, {
-			name: Troops.KNIGHT.name,
-			type: Troops.KNIGHT.type,
-			quantity: 300,
-			level: 1
-		}]
+		troops: [
+			// {
+			// 	...Troops.LORD,
+			// 	count: 1,
+			// 	level: 1
+			// },
+			{
+				...Troops.KNIGHT,
+				count: 163,
+				level: 1
+			},
+			{
+				...Troops.CATAPULT,
+				count: 2,
+				level: 1
+			}
+		]
 	},
 	defender: {
 		troops: [{
-			name: Troops.LORD.name,
-			type: Troops.LORD.type,
-			quantity: 0,
+			...Troops.LORD,
+			count: 0,
 			level: 1
 		}, {
-			name: Troops.KNIGHT.name,
-			type: Troops.KNIGHT.type,
-			quantity: 200,
-			level: 1
+			...Troops.KNIGHT,
+			count: 100,
+			level: 3
 		}],
-		// buildings: []
-		buildings: [{
-			name: Buildings.TOWN_HALL.name,
-			type: Buildings.TOWN_HALL.type,
-			level: 3
-		}, {
-			name: Buildings.DEFENSE_TOWER.name,
-			type: Buildings.DEFENSE_TOWER.type,
-			level: 3
-		}, {
-			name: Buildings.DEFENSE_TOWER.name,
-			type: Buildings.DEFENSE_TOWER.type,
-			level: 3
-		}]
+		buildings: [
+			{
+				...Buildings.TOWN_HALL,
+				level: 3
+			},
+			{
+				...Buildings.DEFENSE_TOWER,
+				level: 3,
+			},
+			{
+				...Buildings.DEFENSE_TOWER,
+				level: 3
+			},
+			{
+				...Buildings.WALLS,
+				level: 3
+			}
+		]
 	}
 })
 
