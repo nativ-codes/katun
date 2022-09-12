@@ -38,8 +38,8 @@ const attackResult = attack({
 			// },
 			{
 				...Troops.KNIGHT,
-				count: 163,
-				level: 1
+				count: 160,
+				level: 3
 			},
 			{
 				...Troops.CATAPULT,
@@ -56,7 +56,7 @@ const attackResult = attack({
 		}, {
 			...Troops.KNIGHT,
 			count: 100,
-			level: 3
+			level: 1
 		}],
 		buildings: [
 			{
@@ -65,11 +65,11 @@ const attackResult = attack({
 			},
 			{
 				...Buildings.DEFENSE_TOWER,
-				level: 3,
+				level: 1,
 			},
 			{
 				...Buildings.DEFENSE_TOWER,
-				level: 3
+				level: 1
 			},
 			{
 				...Buildings.WALLS,
@@ -80,5 +80,3 @@ const attackResult = attack({
 })
 
 console.log("attackResult", attackResult);
-
-// console.log(getDistance([1,3], [5,3]))

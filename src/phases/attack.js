@@ -51,7 +51,6 @@ const getAttackerPoints = village => {
 	const attackerTroopPoints = getTroopsPoints(village.troops);
 	const attackerPoints = attackerTroopPoints + (attackerTroopPoints * Global.ATTACK_DAMAGE_BONUS);
 	const defenseReducer = getDefenseReducer(village.troops);
-	console.log("defenseReducer", defenseReducer);
 
 	return {attackerPoints, defenseReducer};
 };
@@ -59,9 +58,7 @@ const getAttackerPoints = village => {
 const getDefenderPoints = (village, defenseReducer) => {
 	const defenderTroopPoints = getTroopsPoints(village.troops);
 	const defenderBuildingsDefensePercent = getBuildingsPoints(village.buildings);
-	console.log("defenderBuildingsDefensePercent", defenderBuildingsDefensePercent);
 	const defenderBuildingsDefencePercentAfterReducer = Math.max(defenderBuildingsDefensePercent - defenseReducer, 0);
-	console.log("defenderBuildingsDefencePercentAfterReducer", defenderBuildingsDefencePercentAfterReducer);
 	const defenderVillageDefensePoints = defenderTroopPoints + (defenderTroopPoints * defenderBuildingsDefencePercentAfterReducer);
 	const defenderPoints = defenderVillageDefensePoints + (defenderVillageDefensePoints * Global.DEFENSE_BONUS);
 
@@ -73,11 +70,11 @@ const attack = ({attacker, defender}) => {
 	const defenderPoints = getDefenderPoints(defender, defenseReducer);
 
 	const troopsDifference = Math.abs(attackerPoints - defenderPoints);
-	const troopsDifferencePercent = Math.max(attackerPoints, defenderPoints) / Math.min(attackerPoints, defenderPoints);
-	const troopsLeft = Math.floor(troopsDifference + (troopsDifference / troopsDifferencePercent));
+	const troopsLeft = Math.floor(troopsDifference + (troopsDifference * 0.5));
 
 	console.log('Attacker::troops', attackerPoints);
 	console.log('Defender::troops', defenderPoints);
+	console.log("troopsLeft", troopsLeft);
 
 	if(attackerPoints === defenderPoints) {
 		return {
