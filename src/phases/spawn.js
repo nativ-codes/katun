@@ -1,16 +1,22 @@
 import {retry, getRandomFromRange, locationToString} from '../utils/helpers.js'
-import Mock from '../dev/mock.js';
 import Map from '../constants/map.js';
-import {getSafeLocations} from './travel.js';
+import Travel from './travel.js';
+
+// TODO: move this to db
+import Database from '../server/database.js';
 
 const getVillagesFromCardinalPoint = ({cardinalPointName}) => {
 	const {start, end} = Map.CardinalPoints[cardinalPointName];
 
-	return Mock.VILLAGES.filter(({location}) => location[0] >= start[0] && location[0] <= end[0] && location[1] >= start[1] && location[1] <= end[1])
+	console.log("Database.getVillages()", Database.getVillages());
+	return Database.getVillages().filter(({location}) => location[0] >= start[0] && location[0] <= end[0] && location[1] >= start[1] && location[1] <= end[1])
 };
 
 const checkValidSpawnLocation = ({location, villages}) => {
-	const safeNeighborsToString = getSafeLocations({ location }).map(locationToString);
+	console.log("location", location);
+	console.log("villages", villages);
+	const safeNeighborsToString = Travel.getSafeLocations({ location }).map(locationToString);
+	console.log("safeNeighborsToString", safeNeighborsToString);
 
 	return !villages.some(({location}) => safeNeighborsToString.includes(locationToString(location)));
 }
@@ -85,12 +91,11 @@ const spawn = ({cardinalPointName}) => {
 		() => generateValidSpawnLocation({cardinalPointName})
 	);
 
-	Mock.VILLAGES.push(spawnedLocation);
 	console.log(`spawn::${spawnedLocation.location[0]}-${spawnedLocation.location[1]}`);
 	return spawnedLocation;
 }
 
-export {
+export default {
 	checkValidSpawnLocationLeft,
 	spawn
 };

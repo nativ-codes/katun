@@ -94,6 +94,57 @@ const VILLAGES = [];
 	location: [17, 17]
 }];
 
+// const attackResult = attack({
+// 	attacker: {
+// 		troops: [
+// 			// {
+// 			// 	...Troops.LORD,
+// 			// 	count: 1,
+// 			// 	level: 1
+// 			// },
+// 			{
+// 				...Troops.KNIGHT,
+// 				count: 160,
+// 				level: 3
+// 			},
+// 			{
+// 				...Troops.CATAPULT,
+// 				count: 2,
+// 				level: 1
+// 			}
+// 		]
+// 	},
+// 	defender: {
+// 		troops: [{
+// 			...Troops.LORD,
+// 			count: 0,
+// 			level: 1
+// 		}, {
+// 			...Troops.KNIGHT,
+// 			count: 100,
+// 			level: 1
+// 		}],
+// 		buildings: [
+// 			{
+// 				...Buildings.TOWN_HALL,
+// 				level: 3
+// 			},
+// 			{
+// 				...Buildings.DEFENSE_TOWER,
+// 				level: 1,
+// 			},
+// 			{
+// 				...Buildings.DEFENSE_TOWER,
+// 				level: 1
+// 			},
+// 			{
+// 				...Buildings.WALLS,
+// 				level: 3
+// 			}
+// 		]
+// 	}
+// })
+
 export default {
 	VILLAGES,
 	MAP

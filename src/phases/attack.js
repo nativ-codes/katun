@@ -97,6 +97,6 @@ const attack = ({attacker, defender}) => {
 	};
 }
 
-export {
+export default {
 	attack
 };
