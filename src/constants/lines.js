@@ -1,0 +1,11 @@
+const FIRST_LINE = 'FIRST_LINE';
+const SECOND_LINE = 'SECOND_LINE';
+const THIRD_LINE = 'THIRD_LINE';
+const FOURTH_LINE = 'FOURTH_LINE';
+
+export default {
+	FIRST_LINE,
+	SECOND_LINE,
+	THIRD_LINE,
+	FOURTH_LINE
+};

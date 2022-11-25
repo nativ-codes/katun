@@ -1,5 +1,6 @@
 import Troops from '../constants/troops.js';
 import Global from '../constants/global.js';
+import Lines from '../constants/lines';
 import Buildings from '../constants/buildings.js';
 
 // Algorithm
@@ -7,22 +8,38 @@ import Buildings from '../constants/buildings.js';
 // ===================================================================
 //
 // Exemple 1
-// Attacker - 100 knights
-// Defender - 50 knights
+// Attacker - 100 horsemen
+// Defender - 50 horsemen
 // -------------------------------------------------------------------
 // 50 + (50 / 2) = 50 + 25 = 75
-// Attacker - 75 knights left
-// Defender - 0 knights left
+// Attacker - 75 horsemen left
+// Defender - 0 horsemen left
 // ===================================================================
 //
 // Exemple 2
-// Attacker - 50 knights
-// Defender - 200 knights
+// Attacker - 50 horsemen
+// Defender - 200 horsemen
 // -------------------------------------------------------------------
 // 150 + (150 / 4) = 150 + 37 = 187
-// Attacker - 0 knights left
-// Defender - 187 knights left
+// Attacker - 0 horsemen left
+// Defender - 187 horsemen left
 // ===================================================================
+
+// Attack phases
+// 1st phase
+// [1st] [2nd] [3rd] 
+// 
+// 
+
+const AttackPhases = {
+	FIRST_PHASE: [Lines.FIRST_LINE],
+	SECOND_PHASE: [Lines.FIRST_LINE, Lines.SECOND_LINE]
+};
+
+function phases() {
+
+}
+
 
 const getTroopsCount = troops => 
 	troops.filter(({type}) => type === Troops.Types.TROOP).reduce((totalCount, {count}) => {

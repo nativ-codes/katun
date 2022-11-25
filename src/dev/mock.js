@@ -103,7 +103,7 @@ const VILLAGES = [];
 // 			// 	level: 1
 // 			// },
 // 			{
-// 				...Troops.KNIGHT,
+// 				...Troops.HORSEMAN,
 // 				count: 160,
 // 				level: 3
 // 			},
@@ -120,7 +120,7 @@ const VILLAGES = [];
 // 			count: 0,
 // 			level: 1
 // 		}, {
-// 			...Troops.KNIGHT,
+// 			...Troops.HORSEMAN,
 // 			count: 100,
 // 			level: 1
 // 		}],
