@@ -1,7 +1,8 @@
 const Types = {
-	CONQUERER: 'CONQUERER',
 	TROOP: 'TROOP',
-	TRADER: 'TRADER'
+	TRADER: 'TRADER',
+	CONQUERER: 'CONQUERER',
+	DEFENSE_BREAKER: 'DEFENSE_BREAKER'
 };
 
 const LORD = {
@@ -11,6 +12,7 @@ const LORD = {
 	label: 'Lord',
 	stats: {
 		loot: 0,
+		housingSpace: 10
 	},
 	levels: {
 		1: {
@@ -32,6 +34,7 @@ const KNIGHT = {
 	label: 'Knight',
 	stats: {
 		loot: 5,
+		housingSpace: 1
 	},
 	levels: {
 		1: {
@@ -43,11 +46,33 @@ const KNIGHT = {
 		3: {
 			attackDamageBonus: 0.10
 		}
-	}	
+	}
 };
 
+const CATAPULT = {
+	id: 2,
+	type: Types.DEFENSE_BREAKER,
+	name: 'CATAPULT',
+	label: 'Catapult',
+	stats: {
+		loot: 0,
+		housingSpace: 20
+	},
+	levels: {
+		1: {
+			defenseReducer: 0.05
+		},
+		2: {
+			defenseReducer: 0.1
+		},
+		3: {
+			defenseReducer: 0.15
+		}
+	}	
+}
+
 const CARAVAN = {
-	id: 1,
+	id: 3,
 	type: Types.TRADER,
 	name: 'CARAVAN',
 	label: 'Caravan',
@@ -70,5 +95,7 @@ const CARAVAN = {
 export default {
 	Types,
 	LORD,
-	KNIGHT
+	KNIGHT,
+	CARAVAN,
+	CATAPULT
 };

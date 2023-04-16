@@ -1,3 +1,5 @@
+import {Map} from '../constants/index.js';
+
 const getSafeLocations = ({ location: [y, x] }) => [
 	[y, x],
 	[y+1, x],
@@ -17,7 +19,7 @@ const getDistance = (firstLocation, secondLocation) => {
 	return vertical + horizontal;
 };
 
-export {
+export default {
 	getDistance,
 	getSafeLocations
 };
