@@ -137,11 +137,9 @@ const army2 = [
 
 const attack = ({attacker, defender}) => {
 	const attackerArmy = addBaseTroopsPoints(attacker, defender);
-	console.log("attackerArmy", attackerArmy);
 	const defenderArmy = addBaseTroopsPoints(defender, attacker);
-	console.log("defenderArmy", defenderArmy);
 
-	return getAttackResult(attackerArmy, defenderArmy);
+	return getAttackResult(addBonusTroopsPoints({attackerArmy, defenderArmy}));
 }
 
 const parseWinningArmy = ({army, armyPoints, armyCount, resultPoints}) => army.map(({unitPercent, ...rest}) => {
@@ -166,7 +164,7 @@ const getResultPoints = (points1, points2) => {
 	return maxPoints - getValueFromPercent(maxPoints, Math.sqrt(minPoints/maxPoints)/(maxPoints/minPoints));
 }
 
-const getAttackResult = (attacker, defender) => {
+const getAttackResult = ({attacker, defender}) => {
 	const resultPoints = getResultPoints(attacker.armyPoints, defender.armyPoints);
 
 	if(attacker.armyPoints > defender.armyPoints) {
@@ -211,8 +209,8 @@ const getTroopPoints = ({name, level, count}, counterTroop, enemyCount) => {
 }
 
 const addBaseTroopsPoints = (army1, army2) => {
-	const army1Count = army1.troops.reduce((totalCount, {count}) => (totalCount + count), 0);
-	const army2Count = army2.troops.reduce((totalCount, {count}) => (totalCount + count), 0);
+	const army1Count = army1.troops.filter(({type}) => type === Troops.Types.TROOP).reduce((totalCount, {count}) => (totalCount + count), 0);
+	const army2Count = army2.troops.filter(({type}) => type === Troops.Types.TROOP).reduce((totalCount, {count}) => (totalCount + count), 0);
 	const army = army1.troops.filter(({type}) => type === Troops.Types.TROOP).map(({name, level, count}) => {
 		const unitPercent = getPercentFromValue(count, army1Count);
 		const counterUnit = army2.troops.find(unit => Troops.Counters[name] === unit.name);
@@ -232,6 +230,7 @@ const addBaseTroopsPoints = (army1, army2) => {
 		.reduce((totalDefenseReducer, {name, level, count}) => 
 			totalDefenseReducer + Troops[name].levels[level].defenseReducer * count
 		, 0);
+
 	const defenseBonus = army1.buildings?.filter(({type}) => type === Buildings.Types.DEFENSE)
 		.reduce((totalDefenseBonus, {name, level}) => 
 			totalDefenseBonus + Buildings[name].levels[level].defenseBonus
@@ -244,6 +243,18 @@ const addBaseTroopsPoints = (army1, army2) => {
 		defenseBonus,
 		armyCount: army1Count
 	};
+}
+
+const addBonusTroopsPoints = ({attackerArmy, defenderArmy}) => {
+	const totalDefenseBonus = defenderArmy.defenseBonus - (attackerArmy?.defenseReducer || 0);
+
+	return {
+		attacker: attackerArmy,
+		defender: {
+			...defenderArmy,
+			armyPoints: totalDefenseBonus > 0 ? getValueWithBonus(defenderArmy.armyPoints, totalDefenseBonus) : defenderArmy.armyPoints
+		}
+	}
 }
 
 export default attack;
