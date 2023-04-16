@@ -24,24 +24,25 @@ const counters = {
 
 const army1 = [
 	{unitName: 'archer', count: 700},
-	{unitName: 'spearman', count: 200},
-	{unitName: 'horseman', count: 200}
+	{unitName: 'spearman', count: 100},
+	{unitName: 'horseman', count: 300}
 ]
 
 const army2 = [
-	{unitName: 'archer', count: 700},
+	{unitName: 'archer', count: 900},
 	{unitName: 'spearman', count: 200},
-	{unitName: 'horseman', count: 20}
+	{unitName: 'horseman', count: 100}
 ]
 
 
-const fight = (attacker, defender) => {
-	const attackerArmy = addBaseArmyPoints(attacker, defender);
-	const defenderArmy = addBaseArmyPoints(defender, attacker);
+const attack = (attacker, defender) => {
+	const attackerArmy = addBaseTroopsPoints(attacker, defender);
+	const defenderArmy = addBaseTroopsPoints(defender, attacker);
 
-	return getFightResult(attackerArmy,	defenderArmy);
+	return getAttackResult(attackerArmy, defenderArmy);
 
 }
+
 const parseWinningArmy = ({army, points, armyCount, resultPoints}) => army.map(({unitPercent, ...rest}) => {
 	const ratio = getPercentFromValue(resultPoints, points);
 
@@ -64,7 +65,7 @@ const getResultPoints = (points1, points2) => {
 	return maxPoints - getValueFromPercent(maxPoints, Math.sqrt(minPoints/maxPoints)/(maxPoints/minPoints));
 }
 
-const getFightResult = (attacker, defender) => {
+const getAttackResult = (attacker, defender) => {
 	const resultPoints = getResultPoints(attacker.points, defender.points);
 
 	if(attacker.points > defender.points) {
@@ -94,7 +95,7 @@ const getFightResult = (attacker, defender) => {
 	}
 }
 
-const printFightResult = ({attacker, defender, isAttackerWinner}) => {
+const printAttackResult = ({attacker, defender, isAttackerWinner}) => {
 	if(isAttackerWinner) {
 		console.log('Attacker won');
 	} else {
@@ -106,7 +107,7 @@ const printFightResult = ({attacker, defender, isAttackerWinner}) => {
 	defender.forEach(({unitName, count, remainingCount}) => console.log(` * ${unitName}::${remainingCount}/${count}`));
 }
 
-const addBaseArmyPoints = (army1, army2) => {
+const addBaseTroopsPoints = (army1, army2) => {
 	const army1Count = army1.reduce((totalCount, {count}) => (totalCount + count), 0);
 	const army2Count = army2.reduce((totalCount, {count}) => (totalCount + count), 0);
 	const army = army1.map(({unitName, count}) => {
@@ -114,6 +115,7 @@ const addBaseArmyPoints = (army1, army2) => {
 		const counterUnit = army2.find(unit => counters[unitName] === unit.unitName);
 		// might update 1 in the future
 		const points = count + (count * (units[unitName].bonusDamage * getPercentFromValue(counterUnit?.count || 0, army2Count)))
+		console.log("(units[unitName].bonusDamage * getPercentFromValue(counterUnit?.count || 0, army2Count))", (units[unitName].bonusDamage * getPercentFromValue(counterUnit?.count || 0, army2Count)));
 
 		return {
 			count,
@@ -131,7 +133,4 @@ const addBaseArmyPoints = (army1, army2) => {
 	};
 }
 
-printFightResult(fight(army1, army2));
-
-
-
+printAttackResult(attack(army1, army2));

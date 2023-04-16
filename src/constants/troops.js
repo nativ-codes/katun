@@ -1,3 +1,12 @@
+// https://gamerant.com/age-of-empires-4-every-unit-type-guide/
+
+/*
+ Lines
+ 1. [HORSEMAN] [SPEARMAN] [ARCHER]
+ 3. [CATAPULT]
+ 4. [LORD]
+*/
+
 const Types = {
 	TROOP: 'TROOP',
 	TRADER: 'TRADER',
@@ -7,6 +16,7 @@ const Types = {
 
 const LORD = {
 	id: 0,
+	line: 'Lines.FOURTH_LINE',
 	type: Types.CONQUERER,
 	name: 'LORD',
 	label: 'Lord',
@@ -27,11 +37,13 @@ const LORD = {
 	}
 };
 
-const KNIGHT = {
+const HORSEMAN = {
 	id: 1,
+	line: 'Lines.FIRST_LINE',	
 	type: Types.TROOP,
-	name: 'KNIGHT',
-	label: 'Knight',
+	damage: 1,
+	name: 'HORSEMAN',
+	label: 'Horseman',
 	stats: {
 		loot: 5,
 		housingSpace: 1
@@ -49,11 +61,60 @@ const KNIGHT = {
 	}
 };
 
-const CATAPULT = {
+const SPEARMAN = {
 	id: 2,
+	line: 'Lines.FIRST_LINE',	
+	type: Types.TROOP,
+	damage: 1,
+	name: 'SPEARMAN',
+	label: 'Spearman',
+	stats: {
+		loot: 5,
+		housingSpace: 1
+	},
+	levels: {
+		1: {
+			attackDamageBonus: 0.0
+		},
+		2: {
+			attackDamageBonus: 0.05
+		},
+		3: {
+			attackDamageBonus: 0.10
+		}
+	}
+};
+
+const ARCHER = {
+	id: 3,
+	line: 'Lines.SECOND_LINE',	
+	type: Types.TROOP,
+	damage: 1,
+	name: 'ARCHER',
+	label: 'Archer',
+	stats: {
+		loot: 5,
+		housingSpace: 1
+	},
+	levels: {
+		1: {
+			attackDamageBonus: 0.0
+		},
+		2: {
+			attackDamageBonus: 0.05
+		},
+		3: {
+			attackDamageBonus: 0.10
+		}
+	}
+};
+
+const RAM = {
+	id: 4,
+	line: 'Lines.THIRD_LINE',	
 	type: Types.DEFENSE_BREAKER,
-	name: 'CATAPULT',
-	label: 'Catapult',
+	name: 'RAM',
+	label: 'Ram',
 	stats: {
 		loot: 0,
 		housingSpace: 20
@@ -72,7 +133,7 @@ const CATAPULT = {
 }
 
 const CARAVAN = {
-	id: 3,
+	id: 5,
 	type: Types.TRADER,
 	name: 'CARAVAN',
 	label: 'Caravan',
@@ -92,10 +153,19 @@ const CARAVAN = {
 	}	
 };
 
+const Counters = {
+	[ARCHER.name]: SPEARMAN.name,
+	[SPEARMAN.name]: HORSEMAN.name,
+	[HORSEMAN.name]: ARCHER.name
+};
+
 export default {
 	Types,
+	Counters,
 	LORD,
-	KNIGHT,
-	CARAVAN,
-	CATAPULT
+	HORSEMAN,
+	SPEARMAN,
+	ARCHER,
+	RAM,
+	CARAVAN
 };

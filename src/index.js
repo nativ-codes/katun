@@ -1,12 +1,12 @@
-import {populateMap, printMap} from './dev/mock-utils.js';
+import {populateMap, printMap, printAttackResult} from './dev/mock-utils.js';
 import Mock from './dev/mock.js';
-import {attack} from './phases/attack.js';
+import Attack from './phases/attack.js';
 import Troops from './constants/troops.js';
 import Buildings from './constants/buildings.js';
-import {getDistance} from './phases/travel.js';
-import {getRandomFromRange} from './utils/helpers.js';
-import Village from './constants/village.js';
-console.log(Village.DEFAULT_VILLAGE);
+// import {getDistance} from './phases/travel.js';
+// import {getRandomFromRange} from './utils/helpers.js';
+// import Village from './constants/village.js';
+// console.log(Village.DEFAULT_VILLAGE);
 
 //
 // ROW - HEIGHT - Y
@@ -26,51 +26,56 @@ console.log(Village.DEFAULT_VILLAGE);
 
 // populateMap();
 // console.log(printMap());
-console.log(getRandomFromRange([0,1]))
+// console.log(getRandomFromRange([0,1]))
 
-const attackResult = attack({
+const attackResult = Attack({
 	attacker: {
 		troops: [{
-			name: Troops.LORD.name,
-			type: Troops.LORD.type,
-			quantity: 1,
+			...Troops.ARCHER,
+			count: 350,
 			level: 1
 		}, {
-			name: Troops.KNIGHT.name,
-			type: Troops.KNIGHT.type,
-			quantity: 300,
+			...Troops.SPEARMAN,
+			count: 600,
+			level: 1
+		}, {
+			...Troops.HORSEMAN,
+			count: 250,
+			level: 1
+		}, {
+			...Troops.RAM,
+			count: 3,
 			level: 1
 		}]
 	},
 	defender: {
 		troops: [{
-			name: Troops.LORD.name,
-			type: Troops.LORD.type,
-			quantity: 0,
+			...Troops.ARCHER,
+			count: 150,
 			level: 1
 		}, {
-			name: Troops.KNIGHT.name,
-			type: Troops.KNIGHT.type,
-			quantity: 200,
+			...Troops.SPEARMAN,
+			count: 550,
+			level: 1
+		}, {
+			...Troops.HORSEMAN,
+			count: 600,
 			level: 1
 		}],
-		// buildings: []
 		buildings: [{
-			name: Buildings.TOWN_HALL.name,
-			type: Buildings.TOWN_HALL.type,
+			...Buildings.TOWN_HALL,
 			level: 3
 		}, {
-			name: Buildings.DEFENSE_TOWER.name,
-			type: Buildings.DEFENSE_TOWER.type,
+			...Buildings.DEFENSE_TOWER,
 			level: 3
 		}, {
-			name: Buildings.DEFENSE_TOWER.name,
-			type: Buildings.DEFENSE_TOWER.type,
+			...Buildings.DEFENSE_TOWER,
 			level: 3
 		}]
 	}
 })
 
-console.log("attackResult", attackResult);
+printAttackResult(attackResult)
+// console.log("attackResult", attackResult);
 
 // console.log(getDistance([1,3], [5,3]))

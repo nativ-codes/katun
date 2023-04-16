@@ -35,7 +35,20 @@ const printMap = () => Database.getMap().reduce((mapString, row, y) => {
 	return mapString +'\n';
 }, '');
 
+const printAttackResult = ({attacker, defender, isAttackerWinner}) => {
+	if(isAttackerWinner) {
+		console.log('Attacker won');
+	} else {
+		console.log('Defender won');
+	}
+	console.log('\nAttacker left army:');
+	attacker.forEach(({name, count, remainingCount}) => console.log(` * ${name}::${remainingCount}/${count}`));
+	console.log('\nDefender left army:');
+	defender.forEach(({name, count, remainingCount}) => console.log(` * ${name}::${remainingCount}/${count}`));
+}
+
 export {
+	printAttackResult,
 	populateMap,
 	printMap
 };
