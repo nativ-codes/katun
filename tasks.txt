@@ -10,7 +10,8 @@ Tasks:
 		- buildings:
 			- town hall
 				- turn wood and steel into upgrade points
-				- create lord [max 2 per village]
+				- create lord [max 1 per village]
+					- lord price is based on no of villages
 			- mine
 			- forester lodge
 			- defence tower
