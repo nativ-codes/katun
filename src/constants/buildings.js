@@ -1,4 +1,5 @@
 import Resources from './resources.js';
+import {getUpgradedValue} from '../utils/percents.js';
 
 const Types = {
 	DEFENSE: 'DEFENSE',
@@ -14,17 +15,12 @@ const TOWN_HALL = {
 	label: 'Town Hall',
 	unlockAtTH: 1,
 	isDefaultBuilding: true,
-	levels: {
-		1: {
-			defenseBonus: 0.1
-		},
-		2: {
-			defenseBonus: 0.2
-		},
-		3: {
-			defenseBonus: 0.3
+	levels: Array(5).fill().reduce((levels, _, level) => ({
+		...levels,
+		[level+1]: {
+			defenseBonus: getUpgradedValue(0.050, level+1)
 		}
-	}
+	}), {})
 };
 
 const STORAGE = {
@@ -37,6 +33,22 @@ const STORAGE = {
 	isDefaultBuilding: true
 };
 
+// Increases max no of population
+const FARM = {
+	id: 2,
+	type: Types.RESOURCE,
+	name: 'FORESTER_LODGE',
+	label: 'Forester Lodge',
+	unlockAtTH: 1,
+	buildLimit: 1,
+	isDefaultBuilding: false,
+	stats: {
+		resource: Resources.FOOD,
+		hourlyRate: 30
+	}
+}
+
+// Increases max upgrade troops
 const FORESTER_LODGE = {
 	id: 2,
 	type: Types.RESOURCE,
@@ -51,6 +63,7 @@ const FORESTER_LODGE = {
 	}
 };
 
+// Increases max upgrade troops
 const MINE = {
 	id: 3,
 	type: Types.RESOURCE,
@@ -61,10 +74,11 @@ const MINE = {
 	isDefaultBuilding: false,
 	stats: {
 		resource: Resources.IRON,
-		hourlyRate: 10
+		hourlyRate: 30
 	}
 };
 
+// Unlocks troops and reduces time of creating
 const BARRACKS = {
 	id: 4,
 	type: Types.ARMY,
@@ -83,17 +97,12 @@ const DEFENSE_TOWER = {
 	unlockAtTH: 3,
 	isDefaultBuilding: false,
 	buildLimit: 2,
-	levels: {
-		1: {
-			defenseBonus: 0.1
-		},
-		2: {
-			defenseBonus: 0.15
-		},
-		3: {
-			defenseBonus: 0.2
+	levels: Array(5).fill().reduce((levels, _, level) => ({
+		...levels,
+		[level+1]: {
+			defenseBonus: getUpgradedValue(0.075, level+1)
 		}
-	}
+	}), {})
 };
 
 const WALLS = {
@@ -104,17 +113,12 @@ const WALLS = {
 	unlockAtTH: 2,
 	isDefaultBuilding: false,
 	buildLimit: 1,
-	levels: {
-		1: {
-			defenseBonus: 0.2
-		},
-		2: {
-			defenseBonus: 0.3
-		},
-		3: {
-			defenseBonus: 0.4
+	levels: Array(5).fill().reduce((levels, _, level) => ({
+		...levels,
+		[level+1]: {
+			defenseBonus: getUpgradedValue(0.150, level+1)
 		}
-	}
+	}), {})
 };
 
 export default {

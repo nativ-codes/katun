@@ -64,13 +64,13 @@ const attackResult = Attack({
 		}],
 		buildings: [{
 			...Buildings.TOWN_HALL,
-			level: 3
+			level: 1
 		}, {
 			...Buildings.DEFENSE_TOWER,
-			level: 3
+			level: 1
 		}, {
 			...Buildings.DEFENSE_TOWER,
-			level: 3
+			level: 1
 		}]
 	}
 })

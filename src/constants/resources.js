@@ -17,6 +17,13 @@ const IRON = {
 	label: 'Iron'
 };
 
+const FOOD = {
+	id: 1,
+	type: Types.COMMON_RESOURCE,
+	name: 'FOOD',
+	label: 'Food'
+};
+
 const UPGRADE_POINTS = {
 	id: 2,
 	type: Types.RARE_RESOURCE,
@@ -28,5 +35,6 @@ export default {
 	Types,
 	WOOD,
 	IRON,
+	FOOD,
 	UPGRADE_POINTS
 };

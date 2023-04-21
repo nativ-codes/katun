@@ -61,7 +61,8 @@ app.get('/new/:username/:cardinalPointName', (req, res) => {
 
 	res.send(printMapSS());
 });
-
+// https://github.com/node-schedule/node-schedule
+// https://github.com/websockets/ws
 app.listen(port, () => {
 	console.log(`Example app listening on port ${port}`)
 });
