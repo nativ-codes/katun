@@ -81,12 +81,35 @@ const getTroopPoints = ({name, level, count}, counterTroop, enemyCount) => {
 	return getValueWithBonus(basePoints, bonuses);
 }
 
+const getTroopsUnitType = ({type}) => type === Troops.Types.TROOP;
+const getDefenseBreakerUnitType = ({type}) => type === Troops.Types.DEFENSE_BREAKER;
+const getTotalCount = (totalCount, {count}) => totalCount + count;
+
+const getTroopsTotalCount = ({troops}) => troops.filter(getTroopsUnitType).reduce(getTotalCount, 0);
+const getAlliedTroopsTotalCount = ({alliedTroops}) => alliedTroops?.reduce((totalCount, allied) => totalCount + getTroopsTotalCount(allied), 0);
+
+const getAlliedTroopPoints = (name, {alliedTroops}) => alliedTroops.reduce((totalPoints, {troops}) => {
+	const alliedTroopByName = troops.filter(troop => troop.name === name);
+
+	if(alliedTroopByName) {
+		return totalPoints// + alliedTroopByName.reduce()
+	} else {
+		return totalPoints;
+	}
+}, 0);
+
 const addBaseTroopsPoints = (army1, army2) => {
-	const army1Count = army1.troops.filter(({type}) => type === Troops.Types.TROOP).reduce((totalCount, {count}) => (totalCount + count), 0);
-	const army2Count = army2.troops.filter(({type}) => type === Troops.Types.TROOP).reduce((totalCount, {count}) => (totalCount + count), 0);
-	const army = army1.troops.filter(({type}) => type === Troops.Types.TROOP).map(({name, level, count}) => {
+	// Counting each army to extract % of each troop
+	const army1Count = getTroopsTotalCount(army1);
+	const army2Count = getTroopsTotalCount(army2);
+	const alliedTroopsCount = getAlliedTroopsTotalCount(army1);
+
+	const army = army1.troops.filter(getTroopsUnitType).map(({name, level, count}) => {
+		// Get troop type percent from total army
+		// E.g. 20 archers / 200 troops -> 10%
 		const unitPercent = getPercentFromValue(count, army1Count);
 		const counterUnit = army2.troops.find(unit => Troops.Counters[name] === unit.name);
+		// Get total points based on current troop, 
 		const points = getTroopPoints({name, level, count}, counterUnit, army2Count);
 
 		return {
@@ -99,7 +122,7 @@ const addBaseTroopsPoints = (army1, army2) => {
 
 	const armyPoints = army.reduce((totalPoints, {points}) => totalPoints + points, 0);
 
-	const defenseReducer = army1.troops.filter(({type}) => type === Troops.Types.DEFENSE_BREAKER)
+	const defenseReducer = army1.troops.filter(getDefenseBreakerUnitType)
 		.reduce((totalDefenseReducer, {name, level, count}) => 
 			totalDefenseReducer + Troops[name].levels[level].defenseReducer * count
 		, 0);

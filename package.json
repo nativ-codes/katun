@@ -20,6 +20,8 @@
 	},
 	"homepage": "https://github.com/nativ-codes/katun#readme",
 	"dependencies": {
-		"express": "^4.18.1"
+		"express": "^4.18.2",
+		"express-graphql": "^0.12.0",
+		"graphql": "^15.8.0"
 	}
 }

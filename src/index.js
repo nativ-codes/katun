@@ -62,6 +62,25 @@ const attackResult = Attack({
 			count: 600,
 			level: 1
 		}],
+		alliedTroops: [{
+			name: 'Ally 1',
+			troops: [{
+				...Troops.ARCHER,
+				count: 50,
+				level: 1
+			}]
+		}, {
+			name: 'Ally 2',
+			troops: [{
+				...Troops.ARCHER,
+				count: 50,
+				level: 1
+				}, {
+				...Troops.SPEARMAN,
+				count: 100,
+				level: 1
+			}]
+		}],
 		buildings: [{
 			...Buildings.TOWN_HALL,
 			level: 1
