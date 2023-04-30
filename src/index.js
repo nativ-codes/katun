@@ -81,16 +81,16 @@ const attackResult = Attack({
 				level: 1
 			}]
 		}],
-		buildings: [{
-			...Buildings.TOWN_HALL,
-			level: 1
-		}, {
-			...Buildings.DEFENSE_TOWER,
-			level: 1
-		}, {
-			...Buildings.DEFENSE_TOWER,
-			level: 1
-		}]
+		// buildings: [{
+		// 	...Buildings.TOWN_HALL,
+		// 	level: 1
+		// }, {
+		// 	...Buildings.DEFENSE_TOWER,
+		// 	level: 1
+		// }, {
+		// 	...Buildings.DEFENSE_TOWER,
+		// 	level: 1
+		// }]
 	}
 })
 
