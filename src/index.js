@@ -1,6 +1,6 @@
 import {populateMap, printMap, printAttackResult} from './dev/mock-utils.js';
 import Mock from './dev/mock.js';
-import Attack from './phases/attack.js';
+import Attack from './phases/attack/index.js';
 import Troops from './constants/troops.js';
 import Buildings from './constants/buildings.js';
 // import {getDistance} from './phases/travel.js';
@@ -66,18 +66,14 @@ const attackResult = Attack({
 			name: 'Ally 1',
 			troops: [{
 				...Troops.ARCHER,
-				count: 50,
+				count: 450,
 				level: 1
 			}]
 		}, {
 			name: 'Ally 2',
 			troops: [{
-				...Troops.ARCHER,
-				count: 50,
-				level: 1
-				}, {
 				...Troops.SPEARMAN,
-				count: 100,
+				count: 150,
 				level: 1
 			}]
 		}],
