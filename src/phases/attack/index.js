@@ -2,6 +2,7 @@ import {
 	getCountOfTroops,
 	getCountOfAlliedTroops,
 	getCountOfEachTroop,
+	getArmyStats,
 	getResultPoints
 } from './attack.utils.js';
 
@@ -51,25 +52,25 @@ import {
  *
 */
 
-const getAttackResult = ({attacker, defender}) => {
+const getAttackResult = ({attacker, defender, attackerStats, defenderStats}) => {
 	const resultPoints = getResultPoints(attacker.armyPoints, defender.armyPoints);
 
 	if(attacker.armyPoints > defender.armyPoints) {
 		// Attacker wins
 		return {
 			isAttackerWinner: true,
-			attacker: parseWinningArmy({...attacker, resultPoints, isAttackerWinner: true}),
+			attacker: parseWinningArmy({...attacker, ...attackerStats, resultPoints, isAttackerWinner: true}),
 			defender: parseLosingArmy(defender)
 		}
 	} else if(attacker.armyPoints < defender.armyPoints) {
 		// Defender wins
-		const def = parseWinningArmy({...defender, resultPoints, isAttackerWinner: false});
+		const def = parseWinningArmy({...defender, ...defenderStats, resultPoints, isAttackerWinner: false});
 		console.log("def", JSON.stringify(def, null, 4));
 
 		return {
 			isAttackerWinner: false,
 			attacker: parseLosingArmy(attacker),
-			defender: parseWinningArmy({...defender, resultPoints, isAttackerWinner: false})
+			defender: parseWinningArmy({...defender, ...defenderStats, resultPoints, isAttackerWinner: false})
 		}
 	} else {
 		// Equal points, defender wins
@@ -85,6 +86,9 @@ const getAttackResult = ({attacker, defender}) => {
 }
 
 export default ({attacker, defender}) => {
+	const attackerStats = getArmyStats(attacker);
+	const defenderStats = getArmyStats(defender);
+
 	const attackerTotalTroopsCount = getCountOfTroops(attacker);
 	const defenderTotalTroopsCount = getCountOfTroops(defender) + getCountOfAlliedTroops(defender);
 	const countOfEachTroop = getCountOfEachTroop(defender);
@@ -92,22 +96,28 @@ export default ({attacker, defender}) => {
 	const attackerArmy = parseAttackerArmy({
 		defender,
 		attacker,
+		attackerStats,
+		defenderStats,		
 		countOfEachTroop,
-		defenderTotalTroopsCount,
-		attackerTotalTroopsCount
+		// defenderTotalTroopsCount,
+		// attackerTotalTroopsCount
 	});
 
 	const defenderArmy = parseDefenderArmy({
 		defender,
 		attacker,
+		attackerStats,
+		defenderStats,
 		countOfEachTroop,
 		attackerDefenseReducer: attacker?.defenseReducer || 0,
-		defenderTotalTroopsCount,
-		attackerTotalTroopsCount
+		// defenderTotalTroopsCount,
+		// attackerTotalTroopsCount
 	});
 
 	return getAttackResult({
 		attacker: attackerArmy,
-		defender: defenderArmy
+		attackerStats,
+		defender: defenderArmy,
+		defenderStats
 	});
 };
