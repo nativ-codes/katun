@@ -41,6 +41,7 @@ const printAttackResult = ({attacker, defender, isAttackerWinner}) => {
 	} else {
 		console.log('Defender won');
 	}
+	
 	console.log('\nAttacker left army:');
 	attacker.forEach(({name, count, remainingCount}) => console.log(` * ${name}::${remainingCount}/${count}`));
 

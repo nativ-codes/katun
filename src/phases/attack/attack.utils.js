@@ -63,6 +63,13 @@ const getTroopPoints = ({name, level, count}, counterWeight) => {
 	return getValueWithBonus(basePoints, bonuses);
 }
 
+const getRemainingUnits = unitTypeLeft => ({name, count, unitWeight, ...rest}) => ({
+	remainingCount: Math.floor(getValueFromPercent(unitWeight, unitTypeLeft[name])),
+	name,
+	count,
+	...rest
+})
+
 const getResultPoints = (points1, points2) => {
 	const minPoints = Math.min(points1, points2);
 	const maxPoints = Math.max(points1, points2);
@@ -71,6 +78,7 @@ const getResultPoints = (points1, points2) => {
 }
 
 export {
+	getRemainingUnits,
 	getPointsOfTroops,
 	getArmyStats,
 	getCounterUnit,

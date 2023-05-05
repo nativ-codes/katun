@@ -11,7 +11,8 @@ import {
 	getDefenseBreakerUnitType,
 	addDefenseBonus,
 	getTroopPoints,
-	getPointsOfTroops
+	getPointsOfTroops,
+	getRemainingUnits
 } from './attack.utils.js';
 
 const parseLosingArmy = ({army}) => army.map(unit => ({
@@ -28,21 +29,10 @@ const parseWinningArmy = ({army, armyPoints, resultPoints, isAttackerWinner, all
 	}), {});
 
 	return {	
-		army: army.map(({name, count, unitWeight, ...rest}) => ({
-			remainingCount: Math.floor(getValueFromPercent(unitWeight, unitTypeLeft[name])),
-			name,
-			count,
-			...rest
-		})),
+		army: army.map(getRemainingUnits(unitTypeLeft)),
 		alliedTroops: alliedTroops.alliedTroops.map(({name, troops}) => ({
 			name,
-			troops: troops.map(({name, count, unitWeight, ...rest}) => ({
-				remainingCount: Math.floor(getValueFromPercent(unitWeight, unitTypeLeft[name])),
-				name,
-				count,
-				unitWeight,
-				...rest
-			}))
+			troops: troops.map(getRemainingUnits(unitTypeLeft))
 		}))
 	}
 }
