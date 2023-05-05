@@ -8,18 +8,13 @@ import {
 
 const getCounterUnit = (troops, unitName) => troops.find(unit => Units.Counters[unitName] === unit.name);
 
-const getTroopsUnitType = ({type}) => type === Units.Types.TROOP;
+const getTroopUnitType = ({type}) => type === Units.Types.TROOP;
 
 const getDefenseBreakerUnitType = ({type}) => type === Units.Types.DEFENSE_BREAKER;
 
 const getTotalCount = (totalCount, {count}) => totalCount + count;
 
-const getCountOfTroops = ({troops}) => troops.filter(getTroopsUnitType).reduce(getTotalCount, 0);
 const getPointsOfTroops = (troops) => troops.reduce((totalPoints, {points}) => totalPoints + points, 0);
-
-const getCountOfAlliedTroops = ({alliedTroops}) => alliedTroops
-	.reduce((totalTroops, {troops}) => [...totalTroops, ...troops], [])
-	.reduce(getTotalCount, 0);
 
 const mapTroopsCount = (mappedTroops, {name, count}) => ({
 	...mappedTroops,
@@ -27,8 +22,8 @@ const mapTroopsCount = (mappedTroops, {name, count}) => ({
 });
 
 const getCountOfEachTroop = ({troops, alliedTroops = [{troops: []}]}) => alliedTroops
-	.reduce((totalTroops, {troops}) => [...totalTroops, ...troops], []).filter(getTroopsUnitType)
-	.reduce(mapTroopsCount, troops.filter(getTroopsUnitType).reduce(mapTroopsCount, {}))
+	.reduce((totalTroops, {troops}) => [...totalTroops, ...troops], []).filter(getTroopUnitType)
+	.reduce(mapTroopsCount, troops.filter(getTroopUnitType).reduce(mapTroopsCount, {}))
 
 const getArmyStats = ({troops, alliedTroops}) => {
 	const countOfEachUnit = getCountOfEachTroop({troops, alliedTroops});
@@ -79,11 +74,9 @@ export {
 	getPointsOfTroops,
 	getArmyStats,
 	getCounterUnit,
-	getTroopsUnitType,
+	getTroopUnitType,
 	getDefenseBreakerUnitType,
 	getTotalCount,
-	getCountOfTroops,
-	getCountOfAlliedTroops,
 	mapTroopsCount,
 	getCountOfEachTroop,
 	addDefenseBonus,

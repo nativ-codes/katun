@@ -36,7 +36,6 @@ const printMap = () => Database.getMap().reduce((mapString, row, y) => {
 }, '');
 
 const printAttackResult = ({attacker, defender, isAttackerWinner}) => {
-	return;
 	if(isAttackerWinner) {
 		console.log('Attacker won');
 	} else {
@@ -44,9 +43,13 @@ const printAttackResult = ({attacker, defender, isAttackerWinner}) => {
 	}
 	console.log('\nAttacker left army:');
 	attacker.forEach(({name, count, remainingCount}) => console.log(` * ${name}::${remainingCount}/${count}`));
+
 	console.log('\nDefender left army:');
-	defender.forEach(({name, count, remainingCount}) => console.log(` * ${name}::${remainingCount}/${count}`));
-	defender.alliedTroops && defender.alliedTroops.forEach(({name, count, remainingCount}) => console.log(`\n * * ${name}`));
+	defender.army.forEach(({name, count, remainingCount}) => console.log(` * ${name}::${remainingCount}/${count}`));
+	defender.alliedTroops && defender.alliedTroops.forEach(({name, troops}) => {
+		console.log(` * * ${name}`);
+		troops.forEach(({name, count, remainingCount}) => console.log(` * * * ${name}::${remainingCount}/${count}`))
+	});
 }
 
 export {

@@ -1,7 +1,4 @@
 import {
-	getCountOfTroops,
-	getCountOfAlliedTroops,
-	getCountOfEachTroop,
 	getArmyStats,
 	getResultPoints
 } from './attack.utils.js';
@@ -10,7 +7,6 @@ import {
 	parseLosingArmy,
 	parseWinningArmy,
 	parseAttackerArmy,
-	parseAlliedTroops,
 	parseDefenderArmy	
 } from './attack.parsers.js';
 
@@ -86,35 +82,25 @@ export default ({attacker, defender}) => {
 	const attackerStats = getArmyStats(attacker);
 	const defenderStats = getArmyStats(defender);
 
-	const attackerTotalTroopsCount = getCountOfTroops(attacker);
-	const defenderTotalTroopsCount = getCountOfTroops(defender) + getCountOfAlliedTroops(defender);
-	const countOfEachTroop = getCountOfEachTroop(defender);
-
 	const attackerArmy = parseAttackerArmy({
-		defender,
 		attacker,
-		attackerStats,
+		defender,
 		defenderStats,		
-		countOfEachTroop,
-		// defenderTotalTroopsCount,
-		// attackerTotalTroopsCount
+		attackerStats,
 	});
 
 	const defenderArmy = parseDefenderArmy({
-		defender,
 		attacker,
-		attackerStats,
+		defender,
 		defenderStats,
-		countOfEachTroop,
+		attackerStats,
 		attackerDefenseReducer: attacker?.defenseReducer || 0,
-		// defenderTotalTroopsCount,
-		// attackerTotalTroopsCount
 	});
 
 	return getAttackResult({
 		attacker: attackerArmy,
-		attackerStats,
 		defender: defenderArmy,
+		attackerStats,
 		defenderStats
 	});
 };

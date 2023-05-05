@@ -7,11 +7,10 @@ import {
 
 import {
 	getCounterUnit,
-	getTroopsUnitType,
+	getTroopUnitType,
 	getDefenseBreakerUnitType,
 	addDefenseBonus,
 	getTroopPoints,
-	getCountOfTroops,
 	getPointsOfTroops
 } from './attack.utils.js';
 
@@ -54,7 +53,7 @@ const parseAttackerArmy = ({
 	attackerStats,
 	defenderStats
 }) => {
-	const army = parseTroops(attacker, attackerStats, defender, defenderStats);
+	const army = parseUnits(attacker, defender, attackerStats, defenderStats);
 	const armyPoints = army.reduce((totalPoints, {points}) => totalPoints + points, 0);
 
 	const defenseReducer = attacker.troops.filter(getDefenseBreakerUnitType)
@@ -65,25 +64,17 @@ const parseAttackerArmy = ({
 	return {
 		army,
 		armyPoints,
-		defenseReducer,
-		// todo: remove it
-		armyCount: attackerStats.totalCount
+		defenseReducer
 	};
 };
 
-const parseTroops = (army1, army1Stats, army2, army2Stats) => {
-	return army1.troops.filter(getTroopsUnitType).map(({name, level, count, ...rest}) => {
+const parseUnits = (army1, army2, army1Stats, army2Stats) => {
+	return army1.troops.filter(getTroopUnitType).map(({name, level, count}) => {
 		const unitWeight = getPercentFromValue(count, army1Stats.stats[name].count);
-		// console.log("army1Stats.stats", army1Stats.stats);
-		// console.log("unitWeight",name, unitWeight, army1Stats.stats[name].count);
-		// console.log("army1Stats.stats", army1Stats.stats);
 		const counterUnit = getCounterUnit(army2.troops, name);
-		// const counterTroopCount = counterUnit?.count || 0;
-		// todo: test failure
 		const points = getTroopPoints({name, level, count}, army2Stats.stats[Units.Counters[name]].unitWeight);
 
 		return {
-			//...rest,
 			name,
 			level,
 			count,
@@ -95,7 +86,7 @@ const parseTroops = (army1, army1Stats, army2, army2Stats) => {
 
 const parseAlliedTroops = ({defender, attacker, defenderStats, attackerStats}) => {
 	return defender.alliedTroops.reduce(({alliedTroopsPoints, alliedTroops}, alliedTroop) => {
-		let currentAlliedTroops = parseTroops(alliedTroop, defenderStats, attacker, attackerStats);
+		let currentAlliedTroops = parseUnits(alliedTroop, attacker, defenderStats, attackerStats);
 		let currentAlliedTroopsPoints = getPointsOfTroops(currentAlliedTroops);
 
 		return {
@@ -119,7 +110,7 @@ const parseDefenderArmy = ({
 	attackerDefenseReducer
 }) => {
 	const parsedAlliedTroops = parseAlliedTroops({defender, attacker, defenderStats, attackerStats});
-	const army = parseTroops(defender, defenderStats, attacker, attackerStats);
+	const army = parseUnits(defender, attacker, defenderStats, attackerStats);
 
 	const armyPoints = army.reduce((totalPoints, {points}) => totalPoints + points, 0) + parsedAlliedTroops.alliedTroopsPoints;
 
@@ -136,8 +127,6 @@ const parseDefenderArmy = ({
 			defenseReducer: attackerDefenseReducer || 0
 		}),
 		defenseBonus,
-		// todo: remove it
-		armyCount: defenderStats.totalCount,
 		alliedTroops: parsedAlliedTroops
 	};
 };

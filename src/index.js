@@ -1,8 +1,8 @@
 import {populateMap, printMap, printAttackResult} from './dev/mock-utils.js';
 import Mock from './dev/mock.js';
 import Attack from './phases/attack/index.js';
-import Troops from './constants/troops.js';
-import Buildings from './constants/buildings.js';
+import {Units, Buildings} from './constants/index.js';
+// import Buildings from './constants/buildings.js';
 // import {getDistance} from './phases/travel.js';
 // import {getRandomFromRange} from './utils/helpers.js';
 // import Village from './constants/village.js';
@@ -31,48 +31,48 @@ import Buildings from './constants/buildings.js';
 const attackResult = Attack({
 	attacker: {
 		troops: [{
-			...Troops.ARCHER,
+			...Units.ARCHER,
 			count: 350,
 			level: 1
 		}, {
-			...Troops.SPEARMAN,
+			...Units.SPEARMAN,
 			count: 600,
 			level: 1
 		}, {
-			...Troops.HORSEMAN,
+			...Units.HORSEMAN,
 			count: 250,
 			level: 1
 		}, {
-			...Troops.RAM,
+			...Units.RAM,
 			count: 3,
 			level: 1
 		}]
 	},
 	defender: {
 		troops: [{
-			...Troops.ARCHER,
+			...Units.ARCHER,
 			count: 150,
 			level: 1
 		}, {
-			...Troops.SPEARMAN,
+			...Units.SPEARMAN,
 			count: 550,
 			level: 1
 		}, {
-			...Troops.HORSEMAN,
+			...Units.HORSEMAN,
 			count: 600,
 			level: 1
 		}],
 		alliedTroops: [{
 			name: 'Ally 1',
 			troops: [{
-				...Troops.ARCHER,
+				...Units.ARCHER,
 				count: 450,
 				level: 1
 			}]
 		}, {
 			name: 'Ally 2',
 			troops: [{
-				...Troops.SPEARMAN,
+				...Units.SPEARMAN,
 				count: 150,
 				level: 1
 			}]
