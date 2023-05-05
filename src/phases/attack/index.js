@@ -64,9 +64,6 @@ const getAttackResult = ({attacker, defender, attackerStats, defenderStats}) => 
 		}
 	} else if(attacker.armyPoints < defender.armyPoints) {
 		// Defender wins
-		const def = parseWinningArmy({...defender, ...defenderStats, resultPoints, isAttackerWinner: false});
-		console.log("def", JSON.stringify(def, null, 4));
-
 		return {
 			isAttackerWinner: false,
 			attacker: parseLosingArmy(attacker),

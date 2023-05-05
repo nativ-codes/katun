@@ -1,5 +1,4 @@
-import Troops from '../../constants/troops.js';
-import Buildings from '../../constants/buildings.js';
+import {Units, Buildings} from '../../constants/index.js';
 
 import {
 	getPercentFromValue,
@@ -60,7 +59,7 @@ const parseAttackerArmy = ({
 
 	const defenseReducer = attacker.troops.filter(getDefenseBreakerUnitType)
 		.reduce((totalDefenseReducer, {name, level, count}) => 
-			totalDefenseReducer + Troops[name].levels[level].defenseReducer * count
+			totalDefenseReducer + Units[name].levels[level].defenseReducer * count
 		, 0);
 
 	return {
@@ -81,7 +80,7 @@ const parseTroops = (army1, army1Stats, army2, army2Stats) => {
 		const counterUnit = getCounterUnit(army2.troops, name);
 		// const counterTroopCount = counterUnit?.count || 0;
 		// todo: test failure
-		const points = getTroopPoints({name, level, count}, army2Stats.stats[Troops.Counters[name]].unitWeight);
+		const points = getTroopPoints({name, level, count}, army2Stats.stats[Units.Counters[name]].unitWeight);
 
 		return {
 			//...rest,

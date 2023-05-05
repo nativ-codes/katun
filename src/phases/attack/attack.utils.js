@@ -1,5 +1,4 @@
-import Troops from '../../constants/troops.js';
-import Global from '../../constants/global.js';
+import {Units, Global} from '../../constants/index.js';
 
 import {
 	getValueWithBonus,
@@ -7,11 +6,11 @@ import {
 	getValueFromPercent	
 } from '../../utils/percents.js';
 
-const getCounterUnit = (troops, unitName) => troops.find(unit => Troops.Counters[unitName] === unit.name);
+const getCounterUnit = (troops, unitName) => troops.find(unit => Units.Counters[unitName] === unit.name);
 
-const getTroopsUnitType = ({type}) => type === Troops.Types.TROOP;
+const getTroopsUnitType = ({type}) => type === Units.Types.TROOP;
 
-const getDefenseBreakerUnitType = ({type}) => type === Troops.Types.DEFENSE_BREAKER;
+const getDefenseBreakerUnitType = ({type}) => type === Units.Types.DEFENSE_BREAKER;
 
 const getTotalCount = (totalCount, {count}) => totalCount + count;
 
@@ -54,13 +53,11 @@ const addDefenseBonus = ({armyPoints, defenseBonus, defenseReducer}) => {
 	return totalDefenseBonus > 0 ? getValueWithBonus(armyPoints, totalDefenseBonus) : armyPoints;
 }
 
-// const getAlliedTroopsPoints = 
-
 const getTroopPoints = ({name, level, count}, counterWeight) => {
 	// Get points based on Count, Damage, Level
 	const basePoints = getValueWithBonus(
-		count * Troops[name].damage,
-		Troops[name].levels[level].attackDamageBonus
+		count * Units[name].damage,
+		Units[name].levels[level].attackDamageBonus
 	);
 	
 	// E.g. 0.2 [Conter bonus] * 0.4 [Counter weight]
@@ -73,9 +70,7 @@ const getTroopPoints = ({name, level, count}, counterWeight) => {
 
 const getResultPoints = (points1, points2) => {
 	const minPoints = Math.min(points1, points2);
-	console.log("minPoints", minPoints);
 	const maxPoints = Math.max(points1, points2);
-	console.log("maxPoints", maxPoints);
 
 	return maxPoints - getValueFromPercent(maxPoints, Math.sqrt(minPoints/maxPoints)/(maxPoints/minPoints));
 }
