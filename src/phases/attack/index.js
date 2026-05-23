@@ -94,7 +94,7 @@ export default ({attacker, defender}) => {
 		defender,
 		defenderStats,
 		attackerStats,
-		attackerDefenseReducer: attacker?.defenseReducer || 0,
+		attackerDefenseReducer: attackerArmy.defenseReducer || 0,
 	});
 
 	return getAttackResult({

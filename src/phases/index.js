@@ -1,7 +1,15 @@
-export {default as attack} from './attack/index.js';
-export {default as Spawn} from './spawn.js';
-export {default as Travel} from './travel.js';
+import attack from './attack/index.js';
+import Spawn from './spawn.js';
+import Travel from './travel.js';
+
+export {
+	attack,
+	Spawn,
+	Travel
+};
 
 export default {
-	attack
+	attack,
+	Spawn,
+	Travel
 };

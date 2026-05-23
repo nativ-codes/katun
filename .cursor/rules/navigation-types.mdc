@@ -1,0 +1,305 @@
+---
+alwaysApply: false
+---
+
+# Coding Preferences
+
+## Navigation Type Structure
+
+### Overview
+
+All navigation stacks must follow a consistent type structure pattern to ensure type safety, maintainability, and consistency across the application.
+
+### Required Structure
+
+#### 1. Central Type File
+
+Each navigation stack must have a central type file named `{stack-name}.type.ts` in the stack's root directory.
+
+**File Location:** `src/screens/{category}/{stack-name}/{stack-name}.type.ts`
+
+**Required Content:**
+
+```typescript
+// Route name constants
+export const ScreenNameRouteName = "ScreenName";
+export const AnotherScreenRouteName = "AnotherScreen";
+
+// Stack type definition
+export type {StackName}StackType = {
+  [ScreenNameRouteName]: ScreenPropsType | undefined;
+  [AnotherScreenRouteName]: AnotherScreenPropsType | undefined;
+};
+```
+
+#### 2. Individual Screen Type Files
+
+Each screen must have its own type file that imports and uses the centralized route names.
+
+**File Location:** `src/screens/{category}/{stack-name}/screens/{screen-name}/{screen-name}.type.ts`
+
+**Required Content:**
+
+```typescript
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { {StackName}StackType, {ScreenName}RouteName } from "../../{stack-name}.type";
+
+export type {ScreenName}ScreenProps = NativeStackScreenProps<
+  {StackName}StackType,
+  typeof {ScreenName}RouteName
+>;
+```
+
+#### 3. Navigation Configuration
+
+The main navigation type file must import all stack types from their respective locations.
+
+**File Location:** `src/config/navigation/navigation.type.ts`
+
+**Required Content:**
+
+```typescript
+import { {StackName}StackType } from "@/screens/{category}/{stack-name}/{stack-name}.type";
+import { NavigatorScreenParams } from "@react-navigation/native";
+
+export type GlobalStackType = {
+  {StackName}: NavigatorScreenParams<{StackName}StackType>;
+  // ... other stacks
+};
+```
+
+### Special Cases
+
+#### Tab Navigation Stacks
+
+For tab navigation stacks (like main-tabs), use `CompositeScreenProps` with `BottomTabScreenProps`:
+
+```typescript
+import { CompositeScreenProps } from "@react-navigation/native";
+import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { GlobalStackType } from "@/config/navigation/navigation.type";
+import { {StackName}StackType, {ScreenName}RouteName } from "../../{stack-name}.type";
+
+export type {ScreenName}ScreenProps = CompositeScreenProps<
+  BottomTabScreenProps<{StackName}StackType, typeof {ScreenName}RouteName>,
+  NativeStackScreenProps<GlobalStackType>
+>;
+```
+
+### Implementation Rules
+
+1. **Never hardcode screen names** - Always use imported route name constants with `typeof`
+2. **Centralize route names** - All route names must be defined in the central type file
+3. **Consistent naming** - Use `{ScreenName}RouteName` pattern for constants
+4. **Type safety** - Use `NativeStackScreenProps` or `CompositeScreenProps` as appropriate
+5. **Import organization** - Import route names alongside the stack type
+6. **Single source of truth** - Route names are defined once and imported everywhere
+
+### Benefits
+
+- **Type Safety**: TypeScript will catch errors if route names change
+- **Refactoring Safety**: IDE can safely rename route names across the entire codebase
+- **Consistency**: All navigation stacks follow the same pattern
+- **Maintainability**: Centralized route name management
+- **Developer Experience**: Clear, predictable structure for all developers
+
+### Examples
+
+#### Account Onboarding Stack
+
+```typescript
+// account-onboarding.type.ts
+export const SignInRouteName = 'SignIn';
+export const EnterEmailRouteName = 'EnterEmail';
+
+export type AccountOnboardingStackType = {
+  [SignInRouteName]: undefined;
+  [EnterEmailRouteName]: undefined;
+};
+
+// sign-in.type.ts
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { AccountOnboardingStackType, SignInRouteName } from '../../account-onboarding.type';
+
+export type SignInScreenProps = NativeStackScreenProps<
+  AccountOnboardingStackType,
+  typeof SignInRouteName
+>;
+```
+
+#### Main Tabs Stack
+
+```typescript
+// main-tabs.type.ts
+export const HomeRouteName = 'Home';
+export const ProfileRouteName = 'Profile';
+
+export type MainTabsStackType = {
+  [HomeRouteName]: undefined;
+  [ProfileRouteName]: undefined;
+};
+
+// home.type.ts
+import { CompositeScreenProps } from '@react-navigation/native';
+import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { GlobalStackType } from '@/config/navigation/navigation.type';
+import { MainTabsStackType, HomeRouteName } from '../../main-tabs.type';
+
+export type HomeScreenProps = CompositeScreenProps<
+  BottomTabScreenProps<MainTabsStackType, typeof HomeRouteName>,
+  NativeStackScreenProps<GlobalStackType>
+>;
+```
+
+# Coding Preferences
+
+## Navigation Type Structure
+
+### Overview
+
+All navigation stacks must follow a consistent type structure pattern to ensure type safety, maintainability, and consistency across the application.
+
+### Required Structure
+
+#### 1. Central Type File
+
+Each navigation stack must have a central type file named `{stack-name}.type.ts` in the stack's root directory.
+
+**File Location:** `src/screens/{category}/{stack-name}/{stack-name}.type.ts`
+
+**Required Content:**
+
+```typescript
+// Route name constants
+export const ScreenNameRouteName = "ScreenName";
+export const AnotherScreenRouteName = "AnotherScreen";
+
+// Stack type definition
+export type {StackName}StackType = {
+  [ScreenNameRouteName]: ScreenPropsType | undefined;
+  [AnotherScreenRouteName]: AnotherScreenPropsType | undefined;
+};
+```
+
+#### 2. Individual Screen Type Files
+
+Each screen must have its own type file that imports and uses the centralized route names.
+
+**File Location:** `src/screens/{category}/{stack-name}/screens/{screen-name}/{screen-name}.type.ts`
+
+**Required Content:**
+
+```typescript
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { {StackName}StackType, {ScreenName}RouteName } from "../../{stack-name}.type";
+
+export type {ScreenName}ScreenProps = NativeStackScreenProps<
+  {StackName}StackType,
+  typeof {ScreenName}RouteName
+>;
+```
+
+#### 3. Navigation Configuration
+
+The main navigation type file must import all stack types from their respective locations.
+
+**File Location:** `src/config/navigation/navigation.type.ts`
+
+**Required Content:**
+
+```typescript
+import { {StackName}StackType } from "@/screens/{category}/{stack-name}/{stack-name}.type";
+import { NavigatorScreenParams } from "@react-navigation/native";
+
+export type GlobalStackType = {
+  {StackName}: NavigatorScreenParams<{StackName}StackType>;
+  // ... other stacks
+};
+```
+
+### Special Cases
+
+#### Tab Navigation Stacks
+
+For tab navigation stacks (like main-tabs), use `CompositeScreenProps` with `BottomTabScreenProps`:
+
+```typescript
+import { CompositeScreenProps } from "@react-navigation/native";
+import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { GlobalStackType } from "@/config/navigation/navigation.type";
+import { {StackName}StackType, {ScreenName}RouteName } from "../../{stack-name}.type";
+
+export type {ScreenName}ScreenProps = CompositeScreenProps<
+  BottomTabScreenProps<{StackName}StackType, typeof {ScreenName}RouteName>,
+  NativeStackScreenProps<GlobalStackType>
+>;
+```
+
+### Implementation Rules
+
+1. **Never hardcode screen names** - Always use imported route name constants with `typeof`
+2. **Centralize route names** - All route names must be defined in the central type file
+3. **Consistent naming** - Use `{ScreenName}RouteName` pattern for constants
+4. **Type safety** - Use `NativeStackScreenProps` or `CompositeScreenProps` as appropriate
+5. **Import organization** - Import route names alongside the stack type
+6. **Single source of truth** - Route names are defined once and imported everywhere
+
+### Benefits
+
+- **Type Safety**: TypeScript will catch errors if route names change
+- **Refactoring Safety**: IDE can safely rename route names across the entire codebase
+- **Consistency**: All navigation stacks follow the same pattern
+- **Maintainability**: Centralized route name management
+- **Developer Experience**: Clear, predictable structure for all developers
+
+### Examples
+
+#### Account Onboarding Stack
+
+```typescript
+// account-onboarding.type.ts
+export const SignInRouteName = 'SignIn';
+export const EnterEmailRouteName = 'EnterEmail';
+
+export type AccountOnboardingStackType = {
+  [SignInRouteName]: undefined;
+  [EnterEmailRouteName]: undefined;
+};
+
+// sign-in.type.ts
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { AccountOnboardingStackType, SignInRouteName } from '../../account-onboarding.type';
+
+export type SignInScreenProps = NativeStackScreenProps<
+  AccountOnboardingStackType,
+  typeof SignInRouteName
+>;
+```
+
+#### Main Tabs Stack
+
+```typescript
+// main-tabs.type.ts
+export const HomeRouteName = 'Home';
+export const ProfileRouteName = 'Profile';
+
+export type MainTabsStackType = {
+  [HomeRouteName]: undefined;
+  [ProfileRouteName]: undefined;
+};
+
+// home.type.ts
+import { CompositeScreenProps } from '@react-navigation/native';
+import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { GlobalStackType } from '@/config/navigation/navigation.type';
+import { MainTabsStackType, HomeRouteName } from '../../main-tabs.type';
+
+export type HomeScreenProps = CompositeScreenProps<
+  BottomTabScreenProps<MainTabsStackType, typeof HomeRouteName>,
+  NativeStackScreenProps<GlobalStackType>
+>;
+```

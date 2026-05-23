@@ -6,7 +6,6 @@ import {
 } from '../../utils/percents.js';
 
 import {
-	getCounterUnit,
 	getTroopUnitType,
 	getDefenseBreakerUnitType,
 	addDefenseBonus,
@@ -14,6 +13,7 @@ import {
 	getPointsOfTroops,
 	getRemainingUnits
 } from './attack.utils.js';
+import getMoraleFromDistance from './morale.js';
 
 const parseLosingArmy = ({army}) => army.map(unit => ({
 	...unit,
@@ -30,7 +30,7 @@ const parseWinningArmy = ({army, armyPoints, resultPoints, isAttackerWinner, all
 
 	return {	
 		army: army.map(getRemainingUnits(unitTypeLeft)),
-		alliedTroops: alliedTroops.alliedTroops.map(({name, troops}) => ({
+		alliedTroops: (alliedTroops?.alliedTroops ?? []).map(({name, troops}) => ({
 			name,
 			troops: troops.map(getRemainingUnits(unitTypeLeft))
 		}))
@@ -44,7 +44,9 @@ const parseAttackerArmy = ({
 	defenderStats
 }) => {
 	const army = parseUnits(attacker, defender, attackerStats, defenderStats);
-	const armyPoints = army.reduce((totalPoints, {points}) => totalPoints + points, 0);
+	const baseArmyPoints = army.reduce((totalPoints, {points}) => totalPoints + points, 0);
+	const morale = getMoraleFromDistance(attacker.distanceBlocks);
+	const armyPoints = baseArmyPoints * morale.pointsMultiplier;
 
 	const defenseReducer = attacker.troops.filter(getDefenseBreakerUnitType)
 		.reduce((totalDefenseReducer, {name, level, count}) => 
@@ -53,16 +55,18 @@ const parseAttackerArmy = ({
 
 	return {
 		army,
+		baseArmyPoints,
 		armyPoints,
-		defenseReducer
+		defenseReducer,
+		morale
 	};
 };
 
 const parseUnits = (army1, army2, army1Stats, army2Stats) => {
 	return army1.troops.filter(getTroopUnitType).map(({name, level, count}) => {
 		const unitWeight = getPercentFromValue(count, army1Stats.stats[name].count);
-		const counterUnit = getCounterUnit(army2.troops, name);
-		const points = getTroopPoints({name, level, count}, army2Stats.stats[Units.Counters[name]].unitWeight);
+		const counterWeight = army2Stats.stats[Units.Counters[name]]?.unitWeight ?? 0;
+		const points = getTroopPoints({name, level, count}, counterWeight);
 
 		return {
 			name,

@@ -1,0 +1,22 @@
+---
+alwaysApply: false
+---
+
+Testing
+
+- Write unit tests using Jest and React Native Testing Library.
+- Consider snapshot testing for components to ensure UI consistency.
+- use `screen` from `@testing-library/react-native` instead of the return of `render`.
+- never mock components or functions, only libraries or services, if it's needed.
+- write tests and that that actually go through flows, imagine you're a user that uses the app:
+- check if all the strings are displayed on the screen, import `i18n` from `@/config/i18n`, never mock `react-i18next` or `useTranslation`, always check if a text exists by pointing to `i18n`.
+- if there are textinputs on the screen, fire an `onChange` event and add a text to it.
+- if there are modals or bottom sheets, open them and check if the text is visible.
+- if there are buttons click on them and check the expected result.
+- if there are selectable items click on them and make sure they are selected. They are selected when they have this suffix `_Selected` on testID.
+- always check if functions are called with the right values.
+- try to have high test coverage.
+- take `@/screens/private/add-happening/screens/happening-requirements/happening-requirements.test.tsx` as an example.
+- each component from `@/common/components` has a testID added, it merges the testID received from the props and appends to it the name of the component: `${props.testID}_TopBar`. Checkout how each testID is composed in order to be able to get the right testID.
+- if a tests failed because it found multiple elements, query them all and expect they are a specific number.
+- after the tests are written, please run them, and fix them in case they fail.

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Katun Attack Playground</title>
+	<link rel="stylesheet" href="/playground/playground.css" />
+</head>
+<body>
+	<div class="page">
+		<header>
+			<h1>Katun Attack Playground</h1>
+			<p>
+				Configure two armies, add as many troop rows as you need, then simulate the attack phase.
+				Unit levels apply attack bonuses, defender buildings add defense, and Rams reduce defender defense.
+			</p>
+		</header>
+
+		<div class="layout">
+			<section class="panel panel-attacker" aria-labelledby="attacker-title">
+				<h2 id="attacker-title">Attacker</h2>
+				<p class="panel-subtitle">Troops sent to attack</p>
+				<div id="attacker-troops" class="troop-list"></div>
+				<button id="add-attacker-troop" type="button" class="btn-secondary">+ Add troop</button>
+
+				<p class="section-label">Travel distance</p>
+				<div class="field-row">
+					<label for="attacker-distance">Distance (blocks)</label>
+					<input id="attacker-distance" type="number" min="0" step="1" value="0" aria-describedby="attacker-distance-help" />
+				</div>
+				<p id="attacker-distance-help" class="field-help">Each block lowers morale by 10%. Low morale applies up to a 13% penalty on attack points, so at 0% morale you keep 87% (e.g. 100 archers become 87 points).</p>
+				<p id="morale-preview" class="morale-preview" aria-live="polite">100% morale · 100% attack points</p>
+			</section>
+
+			<section class="panel panel-defender" aria-labelledby="defender-title">
+				<h2 id="defender-title">Defender</h2>
+				<p class="panel-subtitle">Troops defending the village</p>
+				<div id="defender-troops" class="troop-list"></div>
+				<button id="add-defender-troop" type="button" class="btn-secondary">+ Add troop</button>
+
+				<p class="section-label">Defense buildings</p>
+				<div id="defender-buildings"></div>
+				<button id="add-defender-building" type="button" class="btn-secondary">+ Add building</button>
+
+				<p class="section-label">Allied reinforcements</p>
+				<div id="defender-allies"></div>
+				<button id="add-defender-ally" type="button" class="btn-secondary">+ Add ally</button>
+			</section>
+		</div>
+
+		<div class="actions">
+			<button id="simulate" type="button" class="btn-primary">Simulate attack</button>
+		</div>
+
+		<div id="error" class="error hidden" role="alert"></div>
+		<section id="results" class="results hidden" aria-live="polite"></section>
+	</div>
+
+	<script type="module" src="/playground/playground.js?v=12"></script>
+</body>
+</html>
