@@ -4,6 +4,15 @@ import {fileURLToPath} from 'url';
 
 import {printMap} from '../dev/mock-utils.js';
 import {Spawn} from '../phases/index.js';
+import {
+	createVillage,
+	getBaseConfig,
+	getVillage,
+	buildVillageBuilding,
+	upgradeVillageBuilding,
+	trainVillageTroops,
+	attackCampaignTarget
+} from '../base/routes.js';
 import {getPlaygroundConfig, runAttackSimulation} from '../playground/routes.js';
 import Database from './database.js';
 
@@ -40,6 +49,11 @@ app.use('/playground', (_req, res, next) => {
 	next();
 }, express.static(path.join(publicDirectory, 'playground')));
 
+app.use('/base', (_req, res, next) => {
+	res.setHeader('Cache-Control', 'no-store');
+	next();
+}, express.static(path.join(publicDirectory, 'base')));
+
 let userId = 0;
 let villageId = 0;
 
@@ -49,6 +63,95 @@ function printMapSS() {
 
 app.get('/playground', (_req, res) => {
 	res.redirect('/playground/index.html');
+});
+
+app.get('/base', (_req, res) => {
+	res.redirect('/base/index.html');
+});
+
+app.get('/base/troops', (_req, res) => {
+	res.redirect('/base/troops.html');
+});
+
+app.get('/base/config', (_req, res) => {
+	res.json(getBaseConfig());
+});
+
+app.post('/base/village', (req, res) => {
+	try {
+		const village = createVillage(req.body ?? {});
+		res.json(village);
+	} catch (error) {
+		res.status(400).json({error: error.message});
+	}
+});
+
+app.get('/base/village/:villageId', (req, res) => {
+	try {
+		const village = getVillage(req.params.villageId);
+		res.json(village);
+	} catch (error) {
+		res.status(404).json({error: error.message});
+	}
+});
+
+app.post('/base/village/:villageId/build', (req, res) => {
+	try {
+		const {buildingName} = req.body ?? {};
+
+		if (!buildingName) {
+			throw new Error('buildingName is required');
+		}
+
+		const village = buildVillageBuilding(req.params.villageId, buildingName);
+		res.json(village);
+	} catch (error) {
+		res.status(400).json({error: error.message});
+	}
+});
+
+app.post('/base/village/:villageId/upgrade', (req, res) => {
+	try {
+		const {buildingIndex} = req.body ?? {};
+
+		if (buildingIndex === undefined || buildingIndex === null) {
+			throw new Error('buildingIndex is required');
+		}
+
+		const village = upgradeVillageBuilding(req.params.villageId, buildingIndex);
+		res.json(village);
+	} catch (error) {
+		res.status(400).json({error: error.message});
+	}
+});
+
+app.post('/base/village/:villageId/train', (req, res) => {
+	try {
+		const {unitName, count} = req.body ?? {};
+
+		if (!unitName) {
+			throw new Error('unitName is required');
+		}
+
+		if (count === undefined || count === null) {
+			throw new Error('count is required');
+		}
+
+		const village = trainVillageTroops(req.params.villageId, unitName, count);
+		res.json(village);
+	} catch (error) {
+		res.status(400).json({error: error.message});
+	}
+});
+
+app.post('/base/village/:villageId/battle', (req, res) => {
+	try {
+		const {troops} = req.body ?? {};
+		const response = attackCampaignTarget(req.params.villageId, troops);
+		res.json(response);
+	} catch (error) {
+		res.status(400).json({error: error.message});
+	}
 });
 
 app.get('/playground/config', (_req, res) => {

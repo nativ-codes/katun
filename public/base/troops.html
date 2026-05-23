@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Katun Troops</title>
+	<link rel="stylesheet" href="/base/base.css" />
+</head>
+<body>
+	<div class="page">
+		<nav class="site-nav" aria-label="Base sections">
+			<a href="/base/index.html">Buildings</a>
+			<a href="/base/troops.html" class="active">Troops</a>
+		</nav>
+
+		<header>
+			<h1>Train Troops</h1>
+			<p>
+				Spend resources to recruit troops, then conquer Ironhold and loot enemy villages.
+			</p>
+		</header>
+
+		<div id="error" class="error hidden" role="alert"></div>
+
+		<section id="loading" class="loading" aria-live="polite">Loading village…</section>
+
+		<div id="village" class="village hidden">
+			<section class="panel resources-panel" aria-labelledby="resources-title">
+				<div class="panel-header">
+					<h2 id="resources-title">Resources</h2>
+					<button id="refresh" type="button" class="btn-secondary">Refresh</button>
+				</div>
+				<div id="resources" class="resource-grid"></div>
+			</section>
+
+			<div class="layout">
+				<section class="panel" aria-labelledby="army-title">
+					<h2 id="army-title">Your army <span id="army-total" class="building-level"></span></h2>
+					<div id="training-queue" class="training-queue"></div>
+					<div id="troops" class="troop-list"></div>
+				</section>
+
+				<section class="panel" aria-labelledby="train-title">
+					<h2 id="train-title">Recruit</h2>
+					<div id="train-catalog" class="train-list"></div>
+				</section>
+			</div>
+
+			<section class="panel battle-panel" aria-labelledby="battle-title">
+				<h2 id="battle-title">World map</h2>
+				<p class="panel-subtitle">Conquer Ironhold — each victory loots resources and raises the next challenge (max level 30).</p>
+				<div id="mock-villages" class="village-map"></div>
+				<div id="battle-setup"></div>
+				<section id="battle-results" class="battle-results hidden" aria-live="polite"></section>
+			</section>
+		</div>
+	</div>
+
+	<script type="module" src="/base/troops.js?v=6"></script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Katun Base Playground</title>
+	<link rel="stylesheet" href="/base/base.css" />
+</head>
+<body>
+	<div class="page">
+		<nav class="site-nav" aria-label="Base sections">
+			<a href="/base/index.html" class="active">Buildings</a>
+			<a href="/base/troops.html">Troops</a>
+		</nav>
+
+		<header>
+			<h1>Katun Base Playground</h1>
+			<p>
+				Start with Town Hall and Storage, build resource buildings, and upgrade when you can afford it.
+				Production uses each building's hourly rate and stops when storage is full.
+			</p>
+		</header>
+
+		<div id="error" class="error hidden" role="alert"></div>
+
+		<section id="loading" class="loading" aria-live="polite">Creating village…</section>
+
+		<div id="village" class="village hidden">
+			<section class="panel resources-panel" aria-labelledby="resources-title">
+				<div class="panel-header">
+					<h2 id="resources-title">Resources</h2>
+					<button id="refresh" type="button" class="btn-secondary">Refresh</button>
+				</div>
+				<div id="resources" class="resource-grid"></div>
+			</section>
+
+			<div class="layout">
+				<section class="panel" aria-labelledby="buildings-title">
+					<h2 id="buildings-title">Your buildings</h2>
+					<div id="buildings" class="building-list"></div>
+				</section>
+
+				<section class="panel" aria-labelledby="catalog-title">
+					<h2 id="catalog-title">Build new</h2>
+					<div id="catalog" class="catalog-list"></div>
+				</section>
+			</div>
+		</div>
+	</div>
+
+	<script type="module" src="/base/base.js?v=4"></script>
+</body>
+</html>

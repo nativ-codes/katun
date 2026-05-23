@@ -52,8 +52,8 @@ const parseBuilding = ({name, level}) => {
 
 	const parsedLevel = Number(level);
 
-	if (!Number.isFinite(parsedLevel) || parsedLevel < 1 || parsedLevel > 5) {
-		throw new Error(`Invalid level for ${name}. Use 1 through 5.`);
+	if (!Number.isFinite(parsedLevel) || parsedLevel < 1 || parsedLevel > Buildings.MAX_BUILDING_LEVEL) {
+		throw new Error(`Invalid level for ${name}. Use 1 through ${Buildings.MAX_BUILDING_LEVEL}.`);
 	}
 
 	return {
@@ -107,10 +107,11 @@ const getPlaygroundConfig = () => ({
 		label,
 		type
 	})),
-	defenseBuildings: DEFENSE_BUILDINGS.map(({name, label, buildLimit, levels}) => ({
+	defenseBuildings: DEFENSE_BUILDINGS.map(({name, label, buildLimit, maxLevel, levels}) => ({
 		name,
 		label,
 		buildLimit,
+		maxLevel,
 		...(name === Buildings.DEFENSE_TOWER.name ? {
 			levelDamage: Object.entries(levels).map(([level, {damage}]) => ({
 				level: Number(level),

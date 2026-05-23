@@ -1,4 +1,5 @@
-import {Buildings, Resources, Map} from './../constants/index.js';
+import {Resources, Map} from './../constants/index.js';
+import {createDefaultVillage} from '../base/village.js';
 
 import {getRandomFromRange} from '../utils/helpers.js';
 
@@ -15,22 +16,8 @@ class Database {
 			villages: [{
 				location,
 				villageId,
-				name: 'Village',
+				...createDefaultVillage({id: String(villageId), name: 'Village'}),
 				tradingResource: [Resources.WOOD.name, Resources.IRON.name][getRandomFromRange([0,1])],
-				buildings: [{
-					name: Buildings.TOWN_HALL.name,
-					level: 1
-				}, {
-					name: Buildings.STORAGE.name,
-					level: 1
-				}],
-				resources: [{
-					name: Resources.WOOD.name,
-					count: 200
-				}, {
-					name: Resources.IRON.name,
-					count: 100
-				}],
 				troops: []
 			}]
 		}

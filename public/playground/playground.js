@@ -69,6 +69,8 @@ const createTroopRow = ({name, count, level}) => {
 	return row;
 };
 
+const createLevelRange = (maxLevel) => Array.from({length: maxLevel}, (_, index) => index + 1);
+
 const createBuildingRow = ({name, level}) => {
 	const options = state.config.defenseBuildings.map(({name: buildingName, label, levelDamage}) => {
 		const towerDamage = levelDamage?.find(({level: towerLevel}) => towerLevel === level)?.damage;
@@ -76,11 +78,15 @@ const createBuildingRow = ({name, level}) => {
 		return `<option value="${buildingName}" ${buildingName === name ? 'selected' : ''}>${label}${buildingName === name ? damageSuffix : ''}</option>`;
 	}).join('');
 
+	const selectedBuilding = state.config.defenseBuildings.find(({name: buildingName}) => buildingName === name)
+		?? state.config.defenseBuildings[0];
+	const maxLevel = selectedBuilding?.maxLevel ?? 5;
+
 	const row = document.createElement('div');
 	row.className = 'building-row';
 	row.innerHTML = `
 		<select class="building-name" aria-label="Building type">${options}</select>
-		<select class="building-level" aria-label="Building level">${[1, 2, 3, 4, 5].map((value) => {
+		<select class="building-level" aria-label="Building level">${createLevelRange(maxLevel).map((value) => {
 			const towerConfig = state.config.defenseBuildings.find(({name: buildingName}) => buildingName === 'DEFENSE_TOWER');
 			const towerDamage = towerConfig?.levelDamage?.find(({level: towerLevel}) => towerLevel === value)?.damage;
 			const damageSuffix = name === 'DEFENSE_TOWER' && towerDamage ? ` · ${towerDamage} dmg` : '';

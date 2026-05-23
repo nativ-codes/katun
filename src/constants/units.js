@@ -38,9 +38,9 @@ const HORSEMAN = {
 	name: 'HORSEMAN',
 	label: 'Horseman',
 	cost: {
-		iron: 45,
-		wood: 15,
-		food: 30
+		iron: 10,
+		wood: 0,
+		food: 10
 	},
 	stats: {
 		loot: 20,
@@ -66,9 +66,9 @@ const SPEARMAN = {
 	name: 'SPEARMAN',
 	label: 'Spearman',
 	cost: {
-		iron: 30,
-		wood: 45,
-		food: 15
+		iron: 10,
+		wood: 10,
+		food: 0
 	},
 	stats: {
 		loot: 10,
@@ -94,9 +94,9 @@ const ARCHER = {
 	name: 'ARCHER',
 	label: 'Archer',
 	cost: {
-		iron: 15,
-		wood: 30,
-		food: 45
+		iron: 0,
+		wood: 10,
+		food: 10
 	},	
 	stats: {
 		loot: 10,
@@ -164,9 +164,22 @@ const Counters = {
 	[HORSEMAN.name]: ARCHER.name
 };
 
+const TRAINABLE_TROOPS = [ARCHER, HORSEMAN, SPEARMAN];
+
+const UNITS_BY_NAME = {
+	[LORD.name]: LORD,
+	[HORSEMAN.name]: HORSEMAN,
+	[SPEARMAN.name]: SPEARMAN,
+	[ARCHER.name]: ARCHER,
+	[RAM.name]: RAM,
+	[CARAVAN.name]: CARAVAN
+};
+
 export default {
 	Types,
 	Counters,
+	TRAINABLE_TROOPS,
+	UNITS_BY_NAME,
 	LORD,
 	HORSEMAN,
 	SPEARMAN,
