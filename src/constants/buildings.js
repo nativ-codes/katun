@@ -8,6 +8,8 @@ const Types = {
 	ARMY: 'ARMY'
 };
 
+const DEFENSE_TOWER_FIBONACCI_DAMAGE = [5, 8, 13, 21, 34];
+
 const TOWN_HALL = {
 	id: 0,
 	type: Types.DEFENSE,
@@ -97,10 +99,12 @@ const DEFENSE_TOWER = {
 	unlockAtTH: 3,
 	isDefaultBuilding: false,
 	buildLimit: 2,
+	damage: DEFENSE_TOWER_FIBONACCI_DAMAGE[0],
 	levels: Array(5).fill().reduce((levels, _, level) => ({
 		...levels,
 		[level+1]: {
-			defenseBonus: getUpgradedValue(0.075, level+1)
+			defenseBonus: getUpgradedValue(0.075, level+1),
+			damage: DEFENSE_TOWER_FIBONACCI_DAMAGE[level]
 		}
 	}), {})
 };

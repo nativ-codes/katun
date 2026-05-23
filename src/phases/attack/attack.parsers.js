@@ -10,6 +10,7 @@ import {
 	getDefenseBreakerUnitType,
 	addDefenseBonus,
 	getTroopPoints,
+	getDefenseTowerPoints,
 	getPointsOfTroops,
 	getRemainingUnits
 } from './attack.utils.js';
@@ -78,6 +79,31 @@ const parseUnits = (army1, army2, army1Stats, army2Stats) => {
 	});
 }
 
+const parseDefenseBuildings = (defender) => (defender.buildings ?? [])
+	.filter(({type}) => type === Buildings.Types.DEFENSE)
+	.map(({name, level}) => ({
+		name,
+		label: Buildings[name].label,
+		level,
+		defenseBonus: Buildings[name].levels[level].defenseBonus,
+		damage: Buildings[name].levels[level].damage ?? null
+	}));
+
+const parseDefenseTowers = ({defender}) => (defender.buildings ?? [])
+	.filter(({name}) => name === Buildings.DEFENSE_TOWER.name)
+	.map(({name, level}) => {
+		const damage = Buildings.DEFENSE_TOWER.levels[level].damage;
+		const points = getDefenseTowerPoints({level});
+
+		return {
+			name,
+			level,
+			count: 1,
+			damage,
+			points
+		};
+	});
+
 const parseAlliedTroops = ({defender, attacker, defenderStats, attackerStats}) => {
 	return defender.alliedTroops.reduce(({alliedTroopsPoints, alliedTroops}, alliedTroop) => {
 		let currentAlliedTroops = parseUnits(alliedTroop, attacker, defenderStats, attackerStats);
@@ -105,18 +131,33 @@ const parseDefenderArmy = ({
 }) => {
 	const parsedAlliedTroops = parseAlliedTroops({defender, attacker, defenderStats, attackerStats});
 	const army = parseUnits(defender, attacker, defenderStats, attackerStats);
+	const defenseTowers = parseDefenseTowers({defender});
+	const defenseBuildings = parseDefenseBuildings(defender);
 
-	const armyPoints = army.reduce((totalPoints, {points}) => totalPoints + points, 0) + parsedAlliedTroops.alliedTroopsPoints;
+	const defenderTroopPoints = army.reduce((totalPoints, {points}) => totalPoints + points, 0);
+	const alliedTroopPoints = parsedAlliedTroops.alliedTroopsPoints;
+	const troopPoints = defenderTroopPoints + alliedTroopPoints;
+	const towerPoints = defenseTowers.reduce((totalPoints, {points}) => totalPoints + points, 0);
+	const pointsBeforeDefenseBonus = troopPoints + towerPoints;
 
-	const defenseBonus = defender.buildings?.filter(({type}) => type === Buildings.Types.DEFENSE)
-		.reduce((totalDefenseBonus, {name, level}) => 
-			totalDefenseBonus + Buildings[name].levels[level].defenseBonus
+	const defenseBonus = defenseBuildings
+		.reduce((totalDefenseBonus, {defenseBonus: buildingDefenseBonus}) => 
+			totalDefenseBonus + buildingDefenseBonus
 		, 0);
+	const netDefenseBonus = Math.max(0, defenseBonus - (attackerDefenseReducer || 0));
 
 	return {
 		army,
+		defenseTowers,
+		defenseBuildings,
+		defenderTroopPoints,
+		alliedTroopPoints,
+		troopPoints,
+		towerPoints,
+		pointsBeforeDefenseBonus,
+		netDefenseBonus,
 		armyPoints: addDefenseBonus({
-			armyPoints,
+			armyPoints: pointsBeforeDefenseBonus,
 			defenseBonus,
 			defenseReducer: attackerDefenseReducer || 0
 		}),

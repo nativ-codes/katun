@@ -1,4 +1,4 @@
-import {Units, Global} from '../../constants/index.js';
+import {Units, Global, Buildings} from '../../constants/index.js';
 
 import {
 	getValueWithBonus,
@@ -77,6 +77,12 @@ const getResultPoints = (points1, points2) => {
 	return maxPoints - getValueFromPercent(maxPoints, Math.sqrt(minPoints/maxPoints)/(maxPoints/minPoints));
 }
 
+const getDefenseTowerPoints = ({level}) => {
+	const damage = Buildings.DEFENSE_TOWER.levels[level].damage;
+
+	return getValueWithBonus(damage, Global.ATTACK_DAMAGE_BONUS);
+};
+
 export {
 	getRemainingUnits,
 	getPointsOfTroops,
@@ -89,5 +95,6 @@ export {
 	getCountOfEachTroop,
 	addDefenseBonus,
 	getTroopPoints,
+	getDefenseTowerPoints,
 	getResultPoints
 };

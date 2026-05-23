@@ -1,4 +1,4 @@
-const PLAYGROUND_VERSION = '12';
+const PLAYGROUND_VERSION = '14';
 
 const state = {
 	config: null,
@@ -68,20 +68,40 @@ const createTroopRow = ({name, count, level}) => {
 };
 
 const createBuildingRow = ({name, level}) => {
-	const options = state.config.defenseBuildings.map(({name: buildingName, label}) =>
-		`<option value="${buildingName}" ${buildingName === name ? 'selected' : ''}>${label}</option>`
-	).join('');
+	const options = state.config.defenseBuildings.map(({name: buildingName, label, levelDamage}) => {
+		const towerDamage = levelDamage?.find(({level: towerLevel}) => towerLevel === level)?.damage;
+		const damageSuffix = towerDamage ? ` · ${towerDamage} dmg` : '';
+		return `<option value="${buildingName}" ${buildingName === name ? 'selected' : ''}>${label}${buildingName === name ? damageSuffix : ''}</option>`;
+	}).join('');
 
 	const row = document.createElement('div');
 	row.className = 'building-row';
 	row.innerHTML = `
 		<select class="building-name" aria-label="Building type">${options}</select>
-		<select class="building-level" aria-label="Building level">${[1, 2, 3, 4, 5].map((value) =>
-			`<option value="${value}" ${value === level ? 'selected' : ''}>Level ${value}</option>`
-		).join('')}</select>
+		<select class="building-level" aria-label="Building level">${[1, 2, 3, 4, 5].map((value) => {
+			const towerConfig = state.config.defenseBuildings.find(({name: buildingName}) => buildingName === 'DEFENSE_TOWER');
+			const towerDamage = towerConfig?.levelDamage?.find(({level: towerLevel}) => towerLevel === value)?.damage;
+			const damageSuffix = name === 'DEFENSE_TOWER' && towerDamage ? ` · ${towerDamage} dmg` : '';
+			return `<option value="${value}" ${value === level ? 'selected' : ''}>Level ${value}${damageSuffix}</option>`;
+		}).join('')}</select>
 		<button type="button" class="btn-remove" aria-label="Remove building">×</button>
 	`;
 
+	const updateTowerLevelLabels = () => {
+		const buildingName = row.querySelector('.building-name').value;
+		const levelSelect = row.querySelector('.building-level');
+		const towerConfig = state.config.defenseBuildings.find(({name: configName}) => configName === 'DEFENSE_TOWER');
+
+		Array.from(levelSelect.options).forEach((option) => {
+			const towerDamage = towerConfig?.levelDamage?.find(({level: towerLevel}) => towerLevel === Number(option.value))?.damage;
+			option.textContent = buildingName === 'DEFENSE_TOWER' && towerDamage
+				? `Level ${option.value} · ${towerDamage} dmg`
+				: `Level ${option.value}`;
+		});
+	};
+
+	row.querySelector('.building-name').addEventListener('change', updateTowerLevelLabels);
+	updateTowerLevelLabels();
 	row.querySelector('.btn-remove').addEventListener('click', () => row.remove());
 	return row;
 };
@@ -202,9 +222,120 @@ const renderUnitTable = (units, {showPoints = false} = {}) => {
 	`;
 };
 
+const renderBuildingTable = (buildings) => {
+	if (!buildings?.length) {
+		return '<p class="empty-note">No defense buildings</p>';
+	}
+
+	const rows = buildings.map(({label, name, level, defenseBonus, damage}) => `
+		<tr>
+			<td>${label || name}</td>
+			<td>${level}</td>
+			<td>${damage !== null ? formatNumber(damage) : '—'}</td>
+			<td>${formatNumber(defenseBonus * 100)}%</td>
+		</tr>
+	`).join('');
+
+	return `
+		<table class="unit-table">
+			<thead>
+				<tr>
+					<th>Building</th>
+					<th>Level</th>
+					<th>Damage</th>
+					<th>Defense bonus</th>
+				</tr>
+			</thead>
+			<tbody>${rows}</tbody>
+		</table>
+	`;
+};
+
+const renderCalculationStep = (label, value, {isTotal = false, isFormula = false} = {}) => `
+	<div class="calculation-step ${isTotal ? 'calculation-step-total' : ''} ${isFormula ? 'calculation-step-formula' : ''}">
+		<span>${label}</span>
+		<strong>${value}</strong>
+	</div>
+`;
+
+const renderCalculationBreakdown = (result) => {
+	const attackerCalc = result.calculation?.attacker ?? {};
+	const defenderCalc = result.calculation?.defender ?? {};
+
+	return `
+		<section class="calculation-panel" aria-labelledby="calculation-title">
+			<h2 id="calculation-title">Points calculation</h2>
+			<div class="calculation-columns">
+				<div class="calculation-side">
+					<h3>Attacker</h3>
+					${renderCalculationStep('Base troop points', formatNumber(attackerCalc.basePoints))}
+					${renderCalculationStep('Morale', `${formatNumber(attackerCalc.moralePercent)}%`)}
+					${renderCalculationStep('Distance penalty', `${formatNumber(attackerCalc.penaltyPercent)}%`)}
+					${renderCalculationStep('Attack multiplier', `${formatNumber((attackerCalc.pointsMultiplier ?? 1) * 100)}%`)}
+					${renderCalculationStep(
+						'Final attacker points',
+						formatNumber(attackerCalc.finalPoints),
+						{isTotal: true, isFormula: true}
+					)}
+					<p class="calculation-formula">${formatNumber(attackerCalc.basePoints)} × ${formatNumber((attackerCalc.pointsMultiplier ?? 1) * 100)}% = ${formatNumber(attackerCalc.finalPoints)}</p>
+				</div>
+				<div class="calculation-side">
+					<h3>Defender</h3>
+					${renderCalculationStep('Defender troop points', formatNumber(defenderCalc.troopPoints))}
+					${renderCalculationStep('Allied troop points', formatNumber(defenderCalc.alliedTroopPoints))}
+					${renderCalculationStep('Defense tower damage points', formatNumber(defenderCalc.towerPoints))}
+					${renderCalculationStep('Subtotal before defense bonus', formatNumber(defenderCalc.subtotal), {isTotal: true})}
+					<p class="section-label">Defense buildings</p>
+					${renderBuildingTable(defenderCalc.buildings)}
+					${renderCalculationStep('Total defense bonus', `${formatNumber(defenderCalc.defenseBonus * 100)}%`)}
+					${renderCalculationStep('Attacker defense reducer (RAMs)', `−${formatNumber(defenderCalc.defenseReducer * 100)}%`)}
+					${renderCalculationStep('Net defense bonus applied', `${formatNumber(defenderCalc.netDefenseBonus * 100)}%`)}
+					${renderCalculationStep(
+						'Final defender points',
+						formatNumber(defenderCalc.finalPoints),
+						{isTotal: true, isFormula: true}
+					)}
+					<p class="calculation-formula">${formatNumber(defenderCalc.subtotal)} × (1 + ${formatNumber(defenderCalc.netDefenseBonus * 100)}%) = ${formatNumber(defenderCalc.finalPoints)}</p>
+				</div>
+			</div>
+		</section>
+	`;
+};
+
+const renderTowerTable = (towers) => {
+	if (!towers?.length) {
+		return '';
+	}
+
+	const rows = towers.map(({name, level, damage, points}) => `
+		<tr>
+			<td>${name}</td>
+			<td>${level}</td>
+			<td>${formatNumber(damage)}</td>
+			<td>${formatNumber(points)}</td>
+		</tr>
+	`).join('');
+
+	return `
+		<p class="section-label">Defense towers</p>
+		<table class="unit-table">
+			<thead>
+				<tr>
+					<th>Building</th>
+					<th>Level</th>
+					<th>Damage</th>
+					<th>Points</th>
+				</tr>
+			</thead>
+			<tbody>${rows}</tbody>
+		</table>
+	`;
+};
+
 const renderResults = (result) => {
 	const {results} = state.elements;
 	const alliedTroops = result.defender.alliedTroops ?? [];
+	const defenseTowers = result.defender.defenseTowers ?? [];
 	const morale = result.points.morale;
 
 	results.innerHTML = `
@@ -237,6 +368,10 @@ const renderResults = (result) => {
 				<strong>${formatNumber(result.points.defender)}</strong>
 			</div>
 			<div class="stat-card">
+				<span>Defender tower points</span>
+				<strong>${formatNumber(result.points.defenderTowerPoints ?? 0)}</strong>
+			</div>
+			<div class="stat-card">
 				<span>Defense bonus</span>
 				<strong>${formatNumber(result.points.defenseBonus * 100)}%</strong>
 			</div>
@@ -245,6 +380,7 @@ const renderResults = (result) => {
 				<strong>${formatNumber(result.points.defenseReducer * 100)}%</strong>
 			</div>
 		</div>
+		${renderCalculationBreakdown(result)}
 		<div class="result-columns">
 			<div class="panel panel-attacker">
 				<h2>Attacker</h2>
@@ -263,7 +399,10 @@ const renderResults = (result) => {
 						${renderUnitTable(troops)}
 					</div>
 				`).join('')}
-				<p class="section-label">Point breakdown</p>
+				${renderTowerTable(defenseTowers)}
+				<p class="section-label">Defense buildings</p>
+				${renderBuildingTable(result.defender.defenseBuildings)}
+				<p class="section-label">Troop point breakdown</p>
 				${renderUnitTable(result.defender.unitDetails, {showPoints: true})}
 			</div>
 		</div>

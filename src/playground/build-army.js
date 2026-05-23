@@ -107,10 +107,16 @@ const getPlaygroundConfig = () => ({
 		label,
 		type
 	})),
-	defenseBuildings: DEFENSE_BUILDINGS.map(({name, label, buildLimit}) => ({
+	defenseBuildings: DEFENSE_BUILDINGS.map(({name, label, buildLimit, levels}) => ({
 		name,
 		label,
-		buildLimit
+		buildLimit,
+		...(name === Buildings.DEFENSE_TOWER.name ? {
+			levelDamage: Object.entries(levels).map(([level, {damage}]) => ({
+				level: Number(level),
+				damage
+			}))
+		} : {})
 	})),
 	morale: {
 		maxDistanceBlocks: Global.MORALE_MAX_DISTANCE_BLOCKS,
