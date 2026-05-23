@@ -1,4 +1,4 @@
-const PLAYGROUND_VERSION = '14';
+const PLAYGROUND_VERSION = '15';
 
 const state = {
 	config: null,
@@ -15,10 +15,12 @@ const defaultTroop = (unitName) => ({
 const getElements = () => ({
 	attackerTroops: document.getElementById('attacker-troops'),
 	attackerDistance: document.getElementById('attacker-distance'),
+	attackerAllies: document.getElementById('attacker-allies'),
 	defenderTroops: document.getElementById('defender-troops'),
 	defenderBuildings: document.getElementById('defender-buildings'),
 	defenderAllies: document.getElementById('defender-allies'),
 	addAttackerTroop: document.getElementById('add-attacker-troop'),
+	addAttackerAlly: document.getElementById('add-attacker-ally'),
 	addDefenderTroop: document.getElementById('add-defender-troop'),
 	addDefenderBuilding: document.getElementById('add-defender-building'),
 	addDefenderAlly: document.getElementById('add-defender-ally'),
@@ -146,15 +148,20 @@ const readAllyGroups = (container) => Array.from(container?.querySelectorAll('.a
 }));
 
 const readArmySide = (side) => {
-	const {attackerTroops, defenderTroops, defenderBuildings, defenderAllies} = state.elements;
+	const {
+		attackerTroops,
+		attackerAllies,
+		attackerDistance,
+		defenderTroops,
+		defenderBuildings,
+		defenderAllies
+	} = state.elements;
 
 	if (side === 'attacker') {
-		const {attackerDistance} = state.elements;
-
 		return {
 			troops: readTroopRows(attackerTroops),
 			buildings: [],
-			alliedTroops: [],
+			alliedTroops: readAllyGroups(attackerAllies),
 			distanceBlocks: Number(attackerDistance.value)
 		};
 	}
@@ -268,7 +275,9 @@ const renderCalculationBreakdown = (result) => {
 			<div class="calculation-columns">
 				<div class="calculation-side">
 					<h3>Attacker</h3>
-					${renderCalculationStep('Base troop points', formatNumber(attackerCalc.basePoints))}
+					${renderCalculationStep('Attacker troop points', formatNumber(attackerCalc.troopPoints))}
+					${renderCalculationStep('Allied troop points', formatNumber(attackerCalc.alliedTroopPoints))}
+					${renderCalculationStep('Subtotal before morale', formatNumber(attackerCalc.basePoints), {isTotal: true})}
 					${renderCalculationStep('Morale', `${formatNumber(attackerCalc.moralePercent)}%`)}
 					${renderCalculationStep('Distance penalty', `${formatNumber(attackerCalc.penaltyPercent)}%`)}
 					${renderCalculationStep('Attack multiplier', `${formatNumber((attackerCalc.pointsMultiplier ?? 1) * 100)}%`)}
@@ -334,7 +343,8 @@ const renderTowerTable = (towers) => {
 
 const renderResults = (result) => {
 	const {results} = state.elements;
-	const alliedTroops = result.defender.alliedTroops ?? [];
+	const attackerAlliedTroops = result.attacker.alliedTroops ?? [];
+	const defenderAlliedTroops = result.defender.alliedTroops ?? [];
 	const defenseTowers = result.defender.defenseTowers ?? [];
 	const morale = result.points.morale;
 
@@ -350,6 +360,10 @@ const renderResults = (result) => {
 			<div class="stat-card">
 				<span>Attacker base points</span>
 				<strong>${formatNumber(result.points.attackerBase)}</strong>
+			</div>
+			<div class="stat-card">
+				<span>Attacker allied points</span>
+				<strong>${formatNumber(result.points.attackerAlliedTroopPoints ?? 0)}</strong>
 			</div>
 			<div class="stat-card">
 				<span>Morale</span>
@@ -386,14 +400,20 @@ const renderResults = (result) => {
 				<h2>Attacker</h2>
 				<p class="panel-subtitle">Battle results</p>
 				${renderUnitTable(result.attacker.units)}
-				<p class="section-label">Point breakdown (after morale)</p>
+				${attackerAlliedTroops.map(({name, troops}) => `
+					<div class="ally-block">
+						<h4>${name}</h4>
+						${renderUnitTable(troops)}
+					</div>
+				`).join('')}
+				<p class="section-label">Troop point breakdown (after morale)</p>
 				${renderUnitTable(result.attacker.unitDetails, {showPoints: true})}
 			</div>
 			<div class="panel panel-defender">
 				<h2>Defender</h2>
 				<p class="panel-subtitle">Battle results</p>
 				${renderUnitTable(result.defender.units)}
-				${alliedTroops.map(({name, troops}) => `
+				${defenderAlliedTroops.map(({name, troops}) => `
 					<div class="ally-block">
 						<h4>${name}</h4>
 						${renderUnitTable(troops)}
@@ -476,10 +496,12 @@ const updateMoralePreview = () => {
 const bindEvents = () => {
 	const {
 		addAttackerTroop,
+		addAttackerAlly,
 		addDefenderTroop,
 		addDefenderBuilding,
 		addDefenderAlly,
 		attackerTroops,
+		attackerAllies,
 		attackerDistance,
 		defenderTroops,
 		defenderBuildings,
@@ -492,6 +514,13 @@ const bindEvents = () => {
 
 	addAttackerTroop.addEventListener('click', () => {
 		attackerTroops.appendChild(createTroopRow(defaultTroop('ARCHER')));
+	});
+
+	addAttackerAlly.addEventListener('click', () => {
+		attackerAllies.appendChild(createAllyGroup({
+			name: `Ally ${attackerAllies.children.length + 1}`,
+			troops: [defaultTroop('ARCHER')]
+		}));
 	});
 
 	addDefenderTroop.addEventListener('click', () => {

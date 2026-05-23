@@ -53,6 +53,8 @@ const formatAttackResult = ({
 		points: {
 			attacker: attackerArmy?.armyPoints ?? null,
 			attackerBase: attackerArmy?.baseArmyPoints ?? null,
+			attackerTroopPoints: attackerArmy?.attackerTroopPoints ?? null,
+			attackerAlliedTroopPoints: attackerArmy?.alliedTroopPoints ?? null,
 			defender: defenderArmy?.armyPoints ?? null,
 			defenderTroopPoints: defenderArmy?.defenderTroopPoints ?? null,
 			defenderAlliedTroopPoints: defenderArmy?.alliedTroopPoints ?? null,
@@ -65,6 +67,8 @@ const formatAttackResult = ({
 		},
 		calculation: {
 			attacker: {
+				troopPoints: attackerArmy?.attackerTroopPoints ?? 0,
+				alliedTroopPoints: attackerArmy?.alliedTroopPoints ?? 0,
 				basePoints: attackerArmy?.baseArmyPoints ?? null,
 				moralePercent: morale?.moralePercent ?? 100,
 				penaltyPercent: morale ? (1 - morale.pointsMultiplier) * 100 : 0,
@@ -88,7 +92,8 @@ const formatAttackResult = ({
 			unitDetails: (attackerArmy?.army || []).map((unit) => formatUnit({
 				...unit,
 				points: unit.points * moraleMultiplier
-			}))
+			})),
+			alliedTroops: formatAlliedTroops(attacker?.alliedTroops ?? attackerArmy?.alliedTroops)
 		},
 		defender: {
 			units: formatArmyUnits(defender),

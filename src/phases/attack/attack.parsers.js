@@ -24,7 +24,7 @@ const parseLosingArmy = ({army}) => army.map(unit => ({
 const parseWinningArmy = ({army, armyPoints, resultPoints, isAttackerWinner, alliedTroops, stats, totalCount}) => {
 	const ratio = getPercentFromValue(resultPoints, armyPoints);
 
-	const unitTypeLeft = army.reduce((totalUnitTypeLeft, {name}) => ({
+	const unitTypeLeft = Object.keys(stats).reduce((totalUnitTypeLeft, name) => ({
 		...totalUnitTypeLeft,
 		[name]: getValueFromPercent(stats[name].unitWeight, getValueFromPercent(ratio, totalCount))
 	}), {});
@@ -44,8 +44,16 @@ const parseAttackerArmy = ({
 	attackerStats,
 	defenderStats
 }) => {
+	const parsedAlliedTroops = parseAlliedTroops({
+		armySide: attacker,
+		opponentSide: defender,
+		armySideStats: attackerStats,
+		opponentStats: defenderStats
+	});
 	const army = parseUnits(attacker, defender, attackerStats, defenderStats);
-	const baseArmyPoints = army.reduce((totalPoints, {points}) => totalPoints + points, 0);
+	const attackerTroopPoints = army.reduce((totalPoints, {points}) => totalPoints + points, 0);
+	const alliedTroopPoints = parsedAlliedTroops.alliedTroopsPoints;
+	const baseArmyPoints = attackerTroopPoints + alliedTroopPoints;
 	const morale = getMoraleFromDistance(attacker.distanceBlocks);
 	const armyPoints = baseArmyPoints * morale.pointsMultiplier;
 
@@ -56,6 +64,9 @@ const parseAttackerArmy = ({
 
 	return {
 		army,
+		alliedTroops: parsedAlliedTroops,
+		attackerTroopPoints,
+		alliedTroopPoints,
 		baseArmyPoints,
 		armyPoints,
 		defenseReducer,
@@ -104,23 +115,26 @@ const parseDefenseTowers = ({defender}) => (defender.buildings ?? [])
 		};
 	});
 
-const parseAlliedTroops = ({defender, attacker, defenderStats, attackerStats}) => {
-	return defender.alliedTroops.reduce(({alliedTroopsPoints, alliedTroops}, alliedTroop) => {
-		let currentAlliedTroops = parseUnits(alliedTroop, attacker, defenderStats, attackerStats);
-		let currentAlliedTroopsPoints = getPointsOfTroops(currentAlliedTroops);
+const parseAlliedTroops = ({
+	armySide,
+	opponentSide,
+	armySideStats,
+	opponentStats
+}) => (armySide.alliedTroops ?? []).reduce(({alliedTroopsPoints, alliedTroops}, alliedTroop) => {
+	const currentAlliedTroops = parseUnits(alliedTroop, opponentSide, armySideStats, opponentStats);
+	const currentAlliedTroopsPoints = getPointsOfTroops(currentAlliedTroops);
 
-		return {
-			alliedTroopsPoints: alliedTroopsPoints + currentAlliedTroopsPoints,
-			alliedTroops: [...alliedTroops, {
-				...alliedTroop,
-				troops: currentAlliedTroops
-			}]
-		};
-	}, {
-		alliedTroopsPoints: 0,
-		alliedTroops: []
-	});
-}
+	return {
+		alliedTroopsPoints: alliedTroopsPoints + currentAlliedTroopsPoints,
+		alliedTroops: [...alliedTroops, {
+			...alliedTroop,
+			troops: currentAlliedTroops
+		}]
+	};
+}, {
+	alliedTroopsPoints: 0,
+	alliedTroops: []
+});
 
 const parseDefenderArmy = ({
 	defender,
@@ -129,7 +143,12 @@ const parseDefenderArmy = ({
 	attackerStats,
 	attackerDefenseReducer
 }) => {
-	const parsedAlliedTroops = parseAlliedTroops({defender, attacker, defenderStats, attackerStats});
+	const parsedAlliedTroops = parseAlliedTroops({
+		armySide: defender,
+		opponentSide: attacker,
+		armySideStats: defenderStats,
+		opponentStats: attackerStats
+	});
 	const army = parseUnits(defender, attacker, defenderStats, attackerStats);
 	const defenseTowers = parseDefenseTowers({defender});
 	const defenseBuildings = parseDefenseBuildings(defender);
