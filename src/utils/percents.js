@@ -1,14 +1,7 @@
 import Global from '../constants/global.js';
 
 const getUpgradedValue = (initialValue, level) => {
-	let _level = level;
-	let value = initialValue;
-	while(_level !== 1) {
-		value = getValueWithBonus(value, Global.BASE_UPGRADE_BONUS)
-		_level--;
-	}
-
-	return value;
+	return Math.floor(initialValue * Math.pow(1 + Global.BASE_UPGRADE_BONUS, level - 1));
 }
 
 const getValueWithBonus = (value, bonus) => value + value * bonus;

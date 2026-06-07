@@ -1,3 +1,4 @@
+import BALANCE from '../constants/global-balance.js';
 import {Buildings, Resources, Units} from '../constants/index.js';
 import {
 	generateMockVillages,
@@ -7,6 +8,8 @@ import {
 import {buildBuilding, upgradeBuilding} from './buildings.js';
 import formatVillageState from './format-village.js';
 import {trainTroops} from './troops.js';
+import {upgradeTroop} from './troop-upgrades.js';
+import {convertToUpgradePoints} from './conversions.js';
 import {createDefaultVillage} from './village.js';
 
 const villages = new Map();
@@ -39,6 +42,28 @@ const getBaseConfig = () => ({
 			IRON: cost.iron ?? 0,
 			FOOD: cost.food ?? 0
 		}
+	}))
+});
+
+const getBalanceConfig = () => ({
+	balance: BALANCE,
+	buildings: Object.values(Buildings.BUILDINGS_BY_NAME).map(b => ({
+		name: b.name,
+		label: b.label,
+		type: b.type,
+		maxLevel: b.maxLevel,
+		unlockAtTH: b.unlockAtTH,
+		buildCost: b.buildCost,
+		levels: b.levels
+	})),
+	units: Units.TRAINABLE_TROOPS.map(u => ({
+		name: u.name,
+		label: u.label,
+		maxLevel: u.maxLevel,
+		cost: u.cost,
+		stats: u.stats,
+		barracksRequirement: u.barracksRequirement,
+		upgradeCost: u.upgradeCost
 	}))
 });
 
@@ -110,12 +135,39 @@ const attackCampaignTarget = (villageId, troops) => {
 	};
 };
 
+const upgradeVillageTroop = (villageId, unitName) => {
+	const village = villages.get(villageId);
+
+	if (!village) {
+		throw new Error('Village not found');
+	}
+
+	upgradeTroop(village, unitName);
+
+	return formatVillageResponse(village, villageId);
+};
+
+const convertVillageResources = (villageId, {wood, iron}) => {
+	const village = villages.get(villageId);
+
+	if (!village) {
+		throw new Error('Village not found');
+	}
+
+	convertToUpgradePoints(village, {wood, iron});
+
+	return formatVillageResponse(village, villageId);
+};
+
 export {
 	getBaseConfig,
+	getBalanceConfig,
 	createVillage,
 	getVillage,
 	buildVillageBuilding,
 	upgradeVillageBuilding,
 	trainVillageTroops,
+	upgradeVillageTroop,
+	convertVillageResources,
 	attackCampaignTarget
 };

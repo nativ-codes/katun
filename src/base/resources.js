@@ -4,13 +4,15 @@ import {getBuildingDefinition} from './village.js';
 const RESOURCE_NAMES = [
 	Resources.WOOD.name,
 	Resources.IRON.name,
-	Resources.FOOD.name
+	Resources.FOOD.name,
+	Resources.UPGRADE_POINTS.name
 ];
 
 const COST_KEY_BY_RESOURCE = {
 	[Resources.WOOD.name]: 'wood',
 	[Resources.IRON.name]: 'iron',
-	[Resources.FOOD.name]: 'food'
+	[Resources.FOOD.name]: 'food',
+	[Resources.UPGRADE_POINTS.name]: 'upgradePoints'
 };
 
 const MS_PER_HOUR = 1000 * 60 * 60;

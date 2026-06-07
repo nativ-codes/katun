@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Katun Balance Viewer</title>
+	<style>
+		body {
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+			margin: 0;
+			padding: 20px;
+			background-color: #1a1a1a;
+			color: #e0e0e0;
+		}
+		h1 {
+			color: #4a9eff;
+			border-bottom: 2px solid #4a9eff;
+			padding-bottom: 10px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+		h2 {
+			color: #ffa94a;
+			margin-top: 30px;
+		}
+		.section {
+			margin-bottom: 40px;
+			background-color: #2a2a2a;
+			padding: 20px;
+			border-radius: 8px;
+			box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+		}
+		table {
+			width: 100%;
+			border-collapse: collapse;
+			margin-top: 10px;
+		}
+		th, td {
+			padding: 10px;
+			text-align: left;
+			border-bottom: 1px solid #444;
+		}
+		th {
+			background-color: #333;
+			color: #4a9eff;
+			font-weight: bold;
+		}
+		tr:hover {
+			background-color: #333;
+		}
+		.building-name {
+			font-weight: bold;
+			color: #ffa94a;
+		}
+		.troop-name {
+			font-weight: bold;
+			color: #4aff9e;
+		}
+		.resource {
+			color: #ffd700;
+		}
+		.config-section {
+			background-color: #1a1a1a;
+			padding: 15px;
+			border-radius: 4px;
+			margin: 10px 0;
+		}
+		.config-section h3 {
+			margin: 0 0 15px 0;
+			color: #4aff9e;
+			font-size: 14px;
+		}
+		.config-row {
+			display: flex;
+			gap: 20px;
+			flex-wrap: wrap;
+			margin-bottom: 10px;
+		}
+		.config-item {
+			display: flex;
+			flex-direction: column;
+			gap: 5px;
+		}
+		.config-item label {
+			font-size: 12px;
+			color: #aaa;
+		}
+		.config-item input {
+			background-color: #333;
+			color: #4aff9e;
+			border: 1px solid #555;
+			padding: 5px 10px;
+			border-radius: 4px;
+			width: 80px;
+			font-family: 'Courier New', monospace;
+		}
+		.config-item input:focus {
+			outline: none;
+			border-color: #4aff9e;
+		}
+		button {
+			background-color: #4a9eff;
+			color: white;
+			border: none;
+			padding: 10px 20px;
+			border-radius: 4px;
+			cursor: pointer;
+			font-size: 14px;
+		}
+		button:hover {
+			background-color: #357abd;
+		}
+		button.secondary {
+			background-color: #555;
+		}
+		button.secondary:hover {
+			background-color: #666;
+		}
+		.override-cell {
+			background-color: #2a2a2a;
+		}
+		.override-cell input {
+			background-color: #1a1a1a;
+			color: #ffa94a;
+			border: 1px solid #444;
+			padding: 3px 6px;
+			width: 60px;
+			font-size: 12px;
+		}
+		.override-cell input:focus {
+			border-color: #ffa94a;
+			outline: none;
+		}
+		.editable-value {
+			cursor: pointer;
+			color: #4aff9e;
+		}
+		.editable-value:hover {
+			text-decoration: underline;
+		}
+		.changed {
+			color: #ffa94a !important;
+		}
+		.action-bar {
+			display: flex;
+			gap: 10px;
+			margin-top: 20px;
+		}
+		.presets {
+			display: flex;
+			gap: 10px;
+			flex-wrap: wrap;
+			margin-top: 15px;
+		}
+		.preset-btn {
+			background-color: #2a2a2a;
+			border: 1px solid #555;
+			padding: 5px 12px;
+			font-size: 12px;
+		}
+		.preset-btn:hover {
+			background-color: #3a3a3a;
+		}
+	</style>
+</head>
+<body>
+	<h1>
+		Katun Balance Viewer
+		<div>
+			<button id="reload-btn" class="secondary">Reload Server Data</button>
+		</div>
+	</h1>
+	
+	<div class="section">
+		<h2>Global Balance Config</h2>
+		<p>Modify multipliers to instantly recalculate all values below. Override values show in <span style="color: #ffa94a">orange</span>.</p>
+		
+		<div class="config-section">
+			<h3>Economy</h3>
+			<div class="config-row">
+				<div class="config-item">
+					<label>Production Multiplier</label>
+					<input type="number" id="prod-multiplier" step="0.01" value="1.32">
+				</div>
+				<div class="config-item">
+					<label>Cost Multiplier</label>
+					<input type="number" id="cost-multiplier" step="0.01" value="1.6">
+				</div>
+			</div>
+		</div>
+
+		<div class="config-section">
+			<h3>Military</h3>
+			<div class="config-row">
+				<div class="config-item">
+					<label>Stat Multiplier</label>
+					<input type="number" id="stat-multiplier" step="0.01" value="1.18">
+				</div>
+				<div class="config-item">
+					<label>Cost Multiplier</label>
+					<input type="number" id="military-cost-multiplier" step="0.01" value="1.22">
+				</div>
+			</div>
+		</div>
+
+		<div class="config-section">
+			<h3>Building Upgrades</h3>
+			<div class="config-row">
+				<div class="config-item">
+					<label>Time Multiplier</label>
+					<input type="number" id="time-multiplier" step="0.01" value="1.75">
+				</div>
+				<div class="config-item">
+					<label>Base Seconds</label>
+					<input type="number" id="base-seconds" step="1" value="30">
+				</div>
+			</div>
+		</div>
+
+		<div class="config-section">
+			<h3>Troop Upgrades</h3>
+			<div class="config-row">
+				<div class="config-item">
+					<label>Point Cost Multiplier</label>
+					<input type="number" id="point-multiplier" step="0.01" value="1.5">
+				</div>
+				<div class="config-item">
+					<label>Base Point Cost</label>
+					<input type="number" id="base-points" step="1" value="10">
+				</div>
+			</div>
+		</div>
+
+		<div class="presets">
+			<span style="color: #888; font-size: 12px;">Presets:</span>
+			<button class="preset-btn secondary" data-preset="fast">Fast Game</button>
+			<button class="preset-btn secondary" data-preset="standard">Standard</button>
+			<button class="preset-btn secondary" data-preset="hardcore">Hardcore</button>
+			<button class="preset-btn secondary" data-preset="exponential">Exponential</button>
+		</div>
+	</div>
+
+	<div class="section">
+		<h2>Buildings</h2>
+		<div id="buildings-container"></div>
+	</div>
+
+	<div class="section">
+		<h2>Troops</h2>
+		<div id="troops-container"></div>
+	</div>
+
+	<script type="module" src="./balance.js"></script>
+</body>
+</html>

@@ -11,11 +11,14 @@ const createDefaultVillage = ({id, name = 'Village'} = {}) => ({
 	resources: {
 		[Resources.WOOD.name]: 200,
 		[Resources.IRON.name]: 100,
-		[Resources.FOOD.name]: 150
+		[Resources.FOOD.name]: 150,
+		[Resources.UPGRADE_POINTS.name]: 0
 	},
 	buildings: DEFAULT_BUILDINGS.map((building) => ({...building})),
 	troops: [],
+	troopLevels: {},
 	trainingQueue: [],
+	constructionQueue: [],
 	campaign: {
 		level: 1,
 		wins: 0

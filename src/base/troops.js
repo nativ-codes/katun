@@ -5,6 +5,7 @@ import {
 	payCost,
 	syncVillageResources
 } from './resources.js';
+import {getTroopLevel} from './troop-upgrades.js';
 
 const DEFAULT_TROOP_LEVEL = 1;
 const BASE_TRAINING_SECONDS = 10;
@@ -51,11 +52,12 @@ const scaleUnitCost = (cost, count) => ({
 	food: (cost.food ?? 0) * count
 });
 
-const deliverTroops = (village, unitName, level, count) => {
+const deliverTroops = (village, unitName, count) => {
 	if (!village.troops) {
 		village.troops = [];
 	}
 
+	const level = getTroopLevel(village, unitName);
 	const existingStack = getTroopStack(village, unitName, level);
 
 	if (existingStack) {
@@ -107,7 +109,7 @@ const syncTrainingQueue = (village, now = Date.now()) => {
 		const toDeliver = readyCount - entry.deliveredCount;
 
 		if (toDeliver > 0) {
-			deliverTroops(village, entry.unitName, entry.level, toDeliver);
+			deliverTroops(village, entry.unitName, toDeliver);
 			entry.deliveredCount += toDeliver;
 		}
 

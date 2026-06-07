@@ -7,10 +7,13 @@ import {Spawn} from '../phases/index.js';
 import {
 	createVillage,
 	getBaseConfig,
+	getBalanceConfig,
 	getVillage,
 	buildVillageBuilding,
 	upgradeVillageBuilding,
 	trainVillageTroops,
+	upgradeVillageTroop,
+	convertVillageResources,
 	attackCampaignTarget
 } from '../base/routes.js';
 import {getPlaygroundConfig, runAttackSimulation} from '../playground/routes.js';
@@ -54,6 +57,11 @@ app.use('/base', (_req, res, next) => {
 	next();
 }, express.static(path.join(publicDirectory, 'base')));
 
+app.use('/balance', (_req, res, next) => {
+	res.setHeader('Cache-Control', 'no-store');
+	next();
+}, express.static(path.join(publicDirectory, 'balance')));
+
 let userId = 0;
 let villageId = 0;
 
@@ -73,8 +81,16 @@ app.get('/base/troops', (_req, res) => {
 	res.redirect('/base/troops.html');
 });
 
+app.get('/balance', (_req, res) => {
+	res.redirect('/balance/index.html');
+});
+
 app.get('/base/config', (_req, res) => {
 	res.json(getBaseConfig());
+});
+
+app.get('/balance/config', (_req, res) => {
+	res.json(getBalanceConfig());
 });
 
 app.post('/base/village', (req, res) => {
@@ -149,6 +165,32 @@ app.post('/base/village/:villageId/battle', (req, res) => {
 		const {troops} = req.body ?? {};
 		const response = attackCampaignTarget(req.params.villageId, troops);
 		res.json(response);
+	} catch (error) {
+		res.status(400).json({error: error.message});
+	}
+});
+
+app.post('/base/village/:villageId/upgrade-troop', (req, res) => {
+	try {
+		const {unitName} = req.body ?? {};
+
+		if (!unitName) {
+			throw new Error('unitName is required');
+		}
+
+		const village = upgradeVillageTroop(req.params.villageId, unitName);
+		res.json(village);
+	} catch (error) {
+		res.status(400).json({error: error.message});
+	}
+});
+
+app.post('/base/village/:villageId/convert', (req, res) => {
+	try {
+		const {wood = 0, iron = 0} = req.body ?? {};
+
+		const village = convertVillageResources(req.params.villageId, {wood, iron});
+		res.json(village);
 	} catch (error) {
 		res.status(400).json({error: error.message});
 	}

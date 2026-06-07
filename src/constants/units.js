@@ -1,4 +1,5 @@
 import {getUpgradedValue} from '../utils/percents.js';
+import BALANCE from './global-balance.js';
 
 // https://gamerant.com/age-of-empires-4-every-unit-type-guide/
 
@@ -37,6 +38,7 @@ const HORSEMAN = {
 	damage: 1,
 	name: 'HORSEMAN',
 	label: 'Horseman',
+	maxLevel: 3,
 	cost: {
 		iron: 10,
 		wood: 0,
@@ -44,7 +46,25 @@ const HORSEMAN = {
 	},
 	stats: {
 		loot: 20,
-		housingSpace: 1
+		housingSpace: 1,
+		hp: {
+			base: 180,
+			multiplier: BALANCE.military.statMultiplier
+		},
+		attack: {
+			base: 30,
+			multiplier: BALANCE.military.statMultiplier
+		}
+	},
+	barracksRequirement: {
+		1: 1,
+		2: 4,
+		3: 8
+	},
+	upgradeCost: {
+		1: 0,
+		2: Math.floor(BALANCE.troop.baseUpgradePointCost * Math.pow(BALANCE.troop.upgradePointCostMultiplier, 1)),
+		3: Math.floor(BALANCE.troop.baseUpgradePointCost * Math.pow(BALANCE.troop.upgradePointCostMultiplier, 2))
 	},
 	levels: {
 		1: {
@@ -65,6 +85,7 @@ const SPEARMAN = {
 	damage: 1,
 	name: 'SPEARMAN',
 	label: 'Spearman',
+	maxLevel: 3,
 	cost: {
 		iron: 10,
 		wood: 10,
@@ -72,7 +93,25 @@ const SPEARMAN = {
 	},
 	stats: {
 		loot: 10,
-		housingSpace: 1
+		housingSpace: 1,
+		hp: {
+			base: 100,
+			multiplier: BALANCE.military.statMultiplier
+		},
+		attack: {
+			base: 10,
+			multiplier: BALANCE.military.statMultiplier
+		}
+	},
+	barracksRequirement: {
+		1: 1,
+		2: 3,
+		3: 6
+	},
+	upgradeCost: {
+		1: 0,
+		2: Math.floor(BALANCE.troop.baseUpgradePointCost * Math.pow(BALANCE.troop.upgradePointCostMultiplier, 1)),
+		3: Math.floor(BALANCE.troop.baseUpgradePointCost * Math.pow(BALANCE.troop.upgradePointCostMultiplier, 2))
 	},
 	levels: {
 		1: {
@@ -93,6 +132,7 @@ const ARCHER = {
 	damage: 1,
 	name: 'ARCHER',
 	label: 'Archer',
+	maxLevel: 3,
 	cost: {
 		iron: 0,
 		wood: 10,
@@ -100,7 +140,25 @@ const ARCHER = {
 	},	
 	stats: {
 		loot: 10,
-		housingSpace: 1
+		housingSpace: 1,
+		hp: {
+			base: 70,
+			multiplier: BALANCE.military.statMultiplier
+		},
+		attack: {
+			base: 18,
+			multiplier: BALANCE.military.statMultiplier
+		}
+	},
+	barracksRequirement: {
+		1: 2,
+		2: 4,
+		3: 7
+	},
+	upgradeCost: {
+		1: 0,
+		2: Math.floor(BALANCE.troop.baseUpgradePointCost * Math.pow(BALANCE.troop.upgradePointCostMultiplier, 1)),
+		3: Math.floor(BALANCE.troop.baseUpgradePointCost * Math.pow(BALANCE.troop.upgradePointCostMultiplier, 2))
 	},
 	levels: {
 		1: {

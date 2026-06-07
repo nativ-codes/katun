@@ -1,5 +1,6 @@
 import Resources from './resources.js';
 import {getUpgradedValue} from '../utils/percents.js';
+import BALANCE from './global-balance.js';
 
 const Types = {
 	DEFENSE: 'DEFENSE',
@@ -12,61 +13,81 @@ const MAX_BUILDING_LEVEL = 5;
 
 const DEFENSE_TOWER_FIBONACCI_DAMAGE = [5, 8, 13, 21, 34];
 
-const scaleCost = ({wood = 0, iron = 0, food = 0}, level, {ironFromLevel = 1} = {}) => ({
-	wood: Math.floor(wood * level),
-	iron: level >= ironFromLevel ? Math.floor(iron * level) : 0,
-	food: Math.floor(food * level)
+const scaleCost = ({wood = 0, iron = 0, food = 0}, level, {ironFromLevel = 1, multiplier = BALANCE.economy.costMultiplier} = {}) => ({
+	wood: Math.floor(wood * Math.pow(multiplier, level - 1)),
+	iron: level >= ironFromLevel ? Math.floor(iron * Math.pow(multiplier, level - 1)) : 0,
+	food: Math.floor(food * Math.pow(multiplier, level - 1))
 });
 
-const createStorageLevels = () => Array(MAX_BUILDING_LEVEL).fill().reduce((levels, _, index) => {
+const createStorageLevels = (overrides = {}) => Array(MAX_BUILDING_LEVEL).fill().reduce((levels, _, index) => {
 	const level = index + 1;
-	const capacity = Math.floor(getUpgradedValue(1000, level));
+	const capacity = Math.floor(1000 * Math.pow(BALANCE.economy.productionMultiplier, level - 1));
+	const defaultLevel = {
+		capacity: {
+			[Resources.WOOD.name]: capacity,
+			[Resources.IRON.name]: capacity,
+			[Resources.FOOD.name]: capacity
+		},
+		upgradeCost: scaleCost({wood: 120, iron: 100, food: 80}, level, {ironFromLevel: 4}),
+		upgradeTime: Math.floor(BALANCE.building.baseUpgradeSeconds * Math.pow(BALANCE.building.upgradeTimeMultiplier, level - 1))
+	};
 
 	return {
 		...levels,
 		[level]: {
-			capacity: {
-				[Resources.WOOD.name]: capacity,
-				[Resources.IRON.name]: capacity,
-				[Resources.FOOD.name]: capacity
-			},
-			upgradeCost: scaleCost({wood: 120, iron: 100, food: 80}, level, {ironFromLevel: 4})
+			...defaultLevel,
+			...(overrides[level] || {})
 		}
 	};
 }, {});
 
-const createResourceBuildingLevels = (baseHourlyRate) => Array(MAX_BUILDING_LEVEL).fill().reduce((levels, _, index) => {
+const createResourceBuildingLevels = (baseHourlyRate, overrides = {}) => Array(MAX_BUILDING_LEVEL).fill().reduce((levels, _, index) => {
 	const level = index + 1;
+	const defaultLevel = {
+		hourlyRate: Math.floor(baseHourlyRate * Math.pow(BALANCE.economy.productionMultiplier, level - 1)),
+		upgradeCost: scaleCost({wood: 80, iron: 60, food: 50}, level),
+		upgradeTime: Math.floor(BALANCE.building.baseUpgradeSeconds * Math.pow(BALANCE.building.upgradeTimeMultiplier, level - 1))
+	};
 
 	return {
 		...levels,
 		[level]: {
-			hourlyRate: Math.floor(getUpgradedValue(baseHourlyRate, level)),
-			upgradeCost: scaleCost({wood: 80, iron: 60, food: 50}, level)
+			...defaultLevel,
+			...(overrides[level] || {})
 		}
 	};
 }, {});
 
-const createTownHallLevels = () => Array(MAX_BUILDING_LEVEL).fill().reduce((levels, _, index) => {
+const createTownHallLevels = (overrides = {}) => Array(MAX_BUILDING_LEVEL).fill().reduce((levels, _, index) => {
 	const level = index + 1;
+	const defaultLevel = {
+		defenseBonus: 0.050 * Math.pow(1.1, level - 1),
+		upgradeCost: scaleCost({wood: 150, iron: 120, food: 90}, level, {ironFromLevel: 4}),
+		upgradeTime: Math.floor(BALANCE.building.baseUpgradeSeconds * Math.pow(BALANCE.building.upgradeTimeMultiplier, level - 1))
+	};
 
 	return {
 		...levels,
 		[level]: {
-			defenseBonus: getUpgradedValue(0.050, level),
-			upgradeCost: scaleCost({wood: 150, iron: 120, food: 90}, level, {ironFromLevel: 4})
+			...defaultLevel,
+			...(overrides[level] || {})
 		}
 	};
 }, {});
 
-const createDefenseLevels = (baseDefenseBonus) => Array(MAX_BUILDING_LEVEL).fill().reduce((levels, _, index) => {
+const createDefenseLevels = (baseDefenseBonus, overrides = {}) => Array(MAX_BUILDING_LEVEL).fill().reduce((levels, _, index) => {
 	const level = index + 1;
+	const defaultLevel = {
+		defenseBonus: baseDefenseBonus * Math.pow(1.1, level - 1),
+		upgradeCost: scaleCost({wood: 150, iron: 120, food: 90}, level),
+		upgradeTime: Math.floor(BALANCE.building.baseUpgradeSeconds * Math.pow(BALANCE.building.upgradeTimeMultiplier, level - 1))
+	};
 
 	return {
 		...levels,
 		[level]: {
-			defenseBonus: getUpgradedValue(baseDefenseBonus, level),
-			upgradeCost: scaleCost({wood: 150, iron: 120, food: 90}, level)
+			...defaultLevel,
+			...(overrides[level] || {})
 		}
 	};
 }, {});
@@ -111,7 +132,7 @@ const FARM = {
 	stats: {
 		resource: Resources.FOOD
 	},
-	levels: createResourceBuildingLevels(30000000)
+	levels: createResourceBuildingLevels(20)
 };
 
 const FORESTER_LODGE = {
@@ -127,7 +148,7 @@ const FORESTER_LODGE = {
 	stats: {
 		resource: Resources.WOOD
 	},
-	levels: createResourceBuildingLevels(30000000)
+	levels: createResourceBuildingLevels(15)
 };
 
 const MINE = {
@@ -143,7 +164,7 @@ const MINE = {
 	stats: {
 		resource: Resources.IRON
 	},
-	levels: createResourceBuildingLevels(30000000)
+	levels: createResourceBuildingLevels(10)
 };
 
 const BARRACKS = {
@@ -173,9 +194,10 @@ const DEFENSE_TOWER = {
 	levels: Array(MAX_BUILDING_LEVEL).fill().reduce((levels, _, level) => ({
 		...levels,
 		[level+1]: {
-			defenseBonus: getUpgradedValue(0.075, level+1),
+			defenseBonus: 0.075 * Math.pow(1.1, level),
 			damage: DEFENSE_TOWER_FIBONACCI_DAMAGE[level],
-			upgradeCost: scaleCost({wood: 100, iron: 130, food: 70}, level + 1)
+			upgradeCost: scaleCost({wood: 100, iron: 130, food: 70}, level + 1),
+			upgradeTime: Math.floor(BALANCE.building.baseUpgradeSeconds * Math.pow(BALANCE.building.upgradeTimeMultiplier, level))
 		}
 	}), {})
 };
@@ -196,8 +218,9 @@ const WALLS = {
 		return {
 			...levels,
 			[level]: {
-				defenseBonus: getUpgradedValue(0.150, level),
-				upgradeCost: scaleCost({wood: 160, iron: 120, food: 80}, level)
+				defenseBonus: 0.150 * Math.pow(1.1, level - 1),
+				upgradeCost: scaleCost({wood: 160, iron: 120, food: 80}, level),
+				upgradeTime: Math.floor(BALANCE.building.baseUpgradeSeconds * Math.pow(BALANCE.building.upgradeTimeMultiplier, level - 1))
 			}
 		};
 	}, {})

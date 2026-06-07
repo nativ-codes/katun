@@ -10,6 +10,7 @@ import {
 	getBuildingDefinition,
 	getTownHallLevel
 } from './village.js';
+import {meetsRequirements} from '../engine/requirement-engine.js';
 
 const getUpgradeCost = (definition, level) => {
 	const levelConfig = definition.levels[level];
@@ -141,6 +142,20 @@ const canUpgradeBuilding = (village, buildingIndex) => {
 	}
 
 	const nextLevel = building.level + 1;
+	
+	if (building.name !== Buildings.TOWN_HALL.name) {
+		const thCapCheck = meetsRequirements(village, {maxBuildingLevel: nextLevel});
+		if (!thCapCheck.meets) {
+			return {
+				canUpgrade: false,
+				canAffordUpgrade: false,
+				nextLevel,
+				upgradeCost,
+				reason: thCapCheck.reason
+			};
+		}
+	}
+
 	const requirementReason = getUpgradeRequirementReason(village, building, nextLevel);
 
 	if (requirementReason) {
@@ -164,25 +179,89 @@ const canUpgradeBuilding = (village, buildingIndex) => {
 	};
 };
 
-const upgradeBuilding = (village, buildingIndex) => {
+const ensureConstructionQueue = (village) => {
+	if (!village.constructionQueue) {
+		village.constructionQueue = [];
+	}
+	return village.constructionQueue;
+};
+
+const completeConstructionEntry = (village, entry) => {
+	const building = village.buildings[entry.buildingIndex];
+	if (building) {
+		building.level = entry.targetLevel;
+		
+		if (building.name === Buildings.DEFENSE_TOWER.name) {
+			const definition = getBuildingDefinition(building.name);
+			building.damage = definition.levels[building.level].damage;
+		}
+	}
+};
+
+const syncConstructionQueue = (village, now = Date.now()) => {
+	const queue = ensureConstructionQueue(village);
+
+	if (queue.length === 0) {
+		return village;
+	}
+
+	const pending = [];
+
+	queue.forEach((entry) => {
+		if (now >= entry.completesAt) {
+			completeConstructionEntry(village, entry);
+		} else {
+			pending.push(entry);
+		}
+	});
+
+	village.constructionQueue = pending;
+
+	return village;
+};
+
+const isConstructionQueueFull = (village) => {
+	ensureConstructionQueue(village);
+	return village.constructionQueue.length >= 1;
+};
+
+const startBuildingUpgrade = (village, buildingIndex) => {
 	syncVillageResources(village);
+	syncConstructionQueue(village);
 
 	const building = village.buildings[buildingIndex];
 	const definition = getBuildingDefinition(building?.name);
-	const {canUpgrade, canAffordUpgrade, nextLevel, reason, upgradeCost} = canUpgradeBuilding(village, buildingIndex);
+	const {canUpgrade, nextLevel, reason, upgradeCost} = canUpgradeBuilding(village, buildingIndex);
 
 	if (!canUpgrade) {
 		throw new Error(reason ?? 'Cannot upgrade building');
 	}
 
-	payCost(village, upgradeCost);
-	building.level += 1;
-
-	if (building.name === Buildings.DEFENSE_TOWER.name) {
-		building.damage = definition.levels[building.level].damage;
+	if (isConstructionQueueFull(village)) {
+		throw new Error('Construction queue is full');
 	}
 
+	const upgradeTime = definition.levels[building.level]?.upgradeTime ?? 60;
+
+	payCost(village, upgradeCost);
+
+	const now = Date.now();
+	village.constructionQueue.push({
+		id: `construction-${now}-${buildingIndex}`,
+		buildingIndex,
+		buildingName: building.name,
+		currentLevel: building.level,
+		targetLevel: nextLevel,
+		startedAt: now,
+		completesAt: now + upgradeTime * 1000,
+		upgradeTime
+	});
+
 	return village;
+};
+
+const upgradeBuilding = (village, buildingIndex) => {
+	return startBuildingUpgrade(village, buildingIndex);
 };
 
 const getBuildCatalog = (village) => Object.values(Buildings.BUILDINGS_BY_NAME)
@@ -234,8 +313,10 @@ const formatBuildingRow = (village, building, buildingIndex) => {
 export {
 	buildBuilding,
 	upgradeBuilding,
+	startBuildingUpgrade,
 	canBuildBuilding,
 	canUpgradeBuilding,
 	getBuildCatalog,
-	formatBuildingRow
+	formatBuildingRow,
+	syncConstructionQueue
 };

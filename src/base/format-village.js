@@ -4,13 +4,31 @@ import {
 	isResourceAtCapacity,
 	syncVillageResources
 } from './resources.js';
-import {formatBuildingRow, getBuildCatalog} from './buildings.js';
+import {formatBuildingRow, getBuildCatalog, syncConstructionQueue} from './buildings.js';
 import {formatTroopRow, getTrainableUnits, getTotalTroopCount, getTrainingSummary, syncTrainingQueue} from './troops.js';
+import {getTroopUpgradeCatalog} from './troop-upgrades.js';
 import {RESOURCE_NAMES} from './resources.js';
+
+const formatConstructionQueueRow = (entry, now = Date.now()) => {
+	const remainingSeconds = Math.max(0, Math.ceil((entry.completesAt - now) / 1000));
+
+	return {
+		id: entry.id,
+		buildingIndex: entry.buildingIndex,
+		buildingName: entry.buildingName,
+		currentLevel: entry.currentLevel,
+		targetLevel: entry.targetLevel,
+		startedAt: entry.startedAt,
+		completesAt: entry.completesAt,
+		upgradeTime: entry.upgradeTime,
+		remainingSeconds
+	};
+};
 
 const formatVillageState = (village) => {
 	syncVillageResources(village);
 	syncTrainingQueue(village);
+	syncConstructionQueue(village);
 
 	const now = Date.now();
 
@@ -36,10 +54,13 @@ const formatVillageState = (village) => {
 			building,
 			buildingIndex
 		)),
+		constructionQueue: (village.constructionQueue ?? []).map((entry) => formatConstructionQueueRow(entry, now)),
 		troops: (village.troops ?? []).map((troop) => formatTroopRow(village, troop)),
+		troopLevels: village.troopLevels ?? {},
 		totalTroops: getTotalTroopCount(village),
 		training: getTrainingSummary(village, now),
 		trainableUnits: getTrainableUnits(village),
+		troopUpgrades: getTroopUpgradeCatalog(village),
 		catalog: getBuildCatalog(village)
 	};
 };
