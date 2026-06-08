@@ -41,22 +41,28 @@ const createStorageLevels = (overrides = {}) => Array(MAX_BUILDING_LEVEL).fill()
 	};
 }, {});
 
-const createResourceBuildingLevels = (baseHourlyRate, overrides = {}) => Array(MAX_BUILDING_LEVEL).fill().reduce((levels, _, index) => {
-	const level = index + 1;
-	const defaultLevel = {
-		hourlyRate: Math.floor(baseHourlyRate * Math.pow(BALANCE.economy.productionMultiplier, level - 1)),
-		upgradeCost: scaleCost({wood: 80, iron: 60, food: 50}, level),
-		upgradeTime: Math.floor(BALANCE.building.baseUpgradeSeconds * Math.pow(BALANCE.building.upgradeTimeMultiplier, level - 1))
-	};
+const createResourceBuildingLevels = (baseHourlyRate, overrides = {}) => {
+	console.log(`Creating resource building levels: baseHourlyRate=${baseHourlyRate}, multiplier=${BALANCE.economy.productionMultiplier}`);
+	return Array(MAX_BUILDING_LEVEL).fill().reduce((levels, _, index) => {
+		const level = index + 1;
+		// Apply multiplier to all levels (level 1 gets base * multiplier, level 2 gets base * multiplier^2, etc.)
+		const hourlyRate = Math.floor(baseHourlyRate * Math.pow(BALANCE.economy.productionMultiplier, level));
+		console.log(`  Level ${level}: hourlyRate=${hourlyRate}`);
+		const defaultLevel = {
+			hourlyRate,
+			upgradeCost: scaleCost({wood: 80, iron: 60, food: 50}, level),
+			upgradeTime: Math.floor(BALANCE.building.baseUpgradeSeconds * Math.pow(BALANCE.building.upgradeTimeMultiplier, level - 1))
+		};
 
-	return {
-		...levels,
-		[level]: {
-			...defaultLevel,
-			...(overrides[level] || {})
-		}
-	};
-}, {});
+		return {
+			...levels,
+			[level]: {
+				...defaultLevel,
+				...(overrides[level] || {})
+			}
+		};
+	}, {});
+};
 
 const createTownHallLevels = (overrides = {}) => Array(MAX_BUILDING_LEVEL).fill().reduce((levels, _, index) => {
 	const level = index + 1;

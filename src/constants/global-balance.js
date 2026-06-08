@@ -1,6 +1,6 @@
 const BALANCE = {
 	economy: {
-		productionMultiplier: 1.32,
+		productionMultiplier: 34489,//1.32,
 		costMultiplier: 1.6
 	},
 	military: {

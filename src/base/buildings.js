@@ -56,6 +56,7 @@ const canBuildBuilding = (village, buildingName) => {
 	}
 
 	const townHallLevel = getTownHallLevel(village);
+	console.log(`canBuildBuilding: ${buildingName}, TH level=${townHallLevel}, required=${definition.unlockAtTH}, buildings=`, village.buildings.map(b => `${b.name}:Lv${b.level}`));
 
 	if (townHallLevel < definition.unlockAtTH) {
 		return {
@@ -289,6 +290,8 @@ const formatBuildingRow = (village, building, buildingIndex) => {
 	const maxLevel = getMaxLevel(definition);
 	const {canUpgrade, canAffordUpgrade, nextLevel, reason, upgradeCost} = canUpgradeBuilding(village, buildingIndex);
 
+	const nextLevelConfig = nextLevel ? definition?.levels?.[nextLevel] : null;
+
 	return {
 		index: buildingIndex,
 		name: building.name,
@@ -306,7 +309,8 @@ const formatBuildingRow = (village, building, buildingIndex) => {
 		canUpgrade,
 		canAffordUpgrade,
 		upgradeReason: reason,
-		upgradeCost: upgradeCost ? formatCost(upgradeCost) : null
+		upgradeCost: upgradeCost ? formatCost(upgradeCost) : null,
+		upgradeTime: nextLevelConfig?.upgradeTime ?? null
 	};
 };
 

@@ -41,6 +41,8 @@ const getProductionRates = (village) => {
 		[resourceName]: 0
 	}), {});
 
+	console.log('Calculating production rates for', village.buildings.length, 'buildings');
+
 	village.buildings.forEach(({name, level}) => {
 		const definition = getBuildingDefinition(name);
 
@@ -50,9 +52,11 @@ const getProductionRates = (village) => {
 
 		const resourceName = definition.stats.resource.name;
 		const hourlyRate = definition.levels[level]?.hourlyRate ?? 0;
+		console.log(`Building ${name} Lv${level}: ${hourlyRate}/hr for ${resourceName}`);
 		rates[resourceName] += hourlyRate;
 	});
 
+	console.log('Total rates:', rates);
 	return rates;
 };
 

@@ -8,6 +8,14 @@
 </head>
 <body>
 	<div class="page">
+		<!-- Village selector bar at the very top -->
+		<div id="village-bar" class="village-bar hidden">
+			<div class="village-bar-content">
+				<div id="village-list" class="village-tabs"></div>
+				<button id="new-village" type="button" class="btn-new-village" title="Create additional village">+</button>
+			</div>
+		</div>
+
 		<nav class="site-nav" aria-label="Base sections">
 			<a href="/base/index.html">Buildings</a>
 			<a href="/base/troops.html" class="active">Troops</a>
@@ -20,11 +28,36 @@
 			</p>
 		</header>
 
-		<div id="error" class="error hidden" role="alert"></div>
+	<div id="error" class="error hidden" role="alert"></div>
 
-		<section id="loading" class="loading" aria-live="polite">Loading village…</section>
+	<!-- Dev Login Section -->
+	<section id="auth-section" class="panel auth-panel">
+		<div id="auth-login">
+			<h2>Dev Login</h2>
+			<form id="login-form">
+				<div class="form-group">
+					<label for="username">Username</label>
+					<input type="text" id="username" required placeholder="PlayerName" minlength="2" maxlength="30" />
+				</div>
+				<button type="submit" class="btn-primary">Enter Game</button>
+			</form>
+			<p class="auth-toggle" style="font-size: 0.85rem; color: var(--muted);">
+				Dev mode: no password needed
+			</p>
+		</div>
+	</section>
+
+	<section id="loading" class="loading hidden" aria-live="polite">Loading village…</section>
 
 		<div id="village" class="village hidden">
+			<!-- Current village info below the village bar -->
+			<section class="panel current-village-panel">
+				<div class="current-village-info">
+					<span id="village-name" class="current-village-name">Village</span>
+					<code id="village-id" class="village-id">--</code>
+				</div>
+			</section>
+
 			<section class="panel resources-panel" aria-labelledby="resources-title">
 				<div class="panel-header">
 					<h2 id="resources-title">Resources</h2>
@@ -56,6 +89,6 @@
 		</div>
 	</div>
 
-	<script type="module" src="/base/troops.js?v=6"></script>
+	<script type="module" src="/base/troops.js?v=8"></script>
 </body>
 </html>

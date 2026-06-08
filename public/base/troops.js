@@ -1,9 +1,19 @@
 const state = {
 	config: null,
 	village: null,
+	villages: [],
+	currentVillageId: null,
 	lastBattle: null,
-	refreshTimer: null
+	refreshTimer: null,
+	userId: localStorage.getItem('katun-dev-user-id'),
+	username: localStorage.getItem('katun-dev-username')
 };
+
+// Load saved village ID into state on startup
+const savedVillageId = localStorage.getItem('katun-base-village-id');
+if (savedVillageId) {
+	state.currentVillageId = savedVillageId;
+}
 
 const elements = {
 	error: document.getElementById('error'),
@@ -17,7 +27,14 @@ const elements = {
 	mockVillages: document.getElementById('mock-villages'),
 	battleSetup: document.getElementById('battle-setup'),
 	battleResults: document.getElementById('battle-results'),
-	refresh: document.getElementById('refresh')
+	refresh: document.getElementById('refresh'),
+	authSection: document.getElementById('auth-section'),
+	loginForm: document.getElementById('login-form'),
+	villageBar: document.getElementById('village-bar'),
+	villageList: document.getElementById('village-list'),
+	villageName: document.getElementById('village-name'),
+	villageId: document.getElementById('village-id'),
+	newVillage: document.getElementById('new-village')
 };
 
 const showError = (message) => {
@@ -28,6 +45,37 @@ const showError = (message) => {
 const clearError = () => {
 	elements.error.textContent = '';
 	elements.error.classList.add('hidden');
+};
+
+const getCurrentVillage = () => {
+	return state.villages.find(v => v.id === state.currentVillageId) || state.villages[0] || state.village;
+};
+
+const renderVillageList = () => {
+	if (!elements.villageList) return;
+
+	elements.villageList.innerHTML = state.villages.map((village, index) => `
+		<button
+			type="button"
+			class="village-tab ${village.id === state.currentVillageId ? 'active' : ''}"
+			data-action="switch-village"
+			data-village-id="${village.id}"
+			title="${village.name || 'Village ' + (index + 1)}"
+		>
+			<span>Village ${index + 1}</span>
+			<code class="village-tab-id">${village.id.slice(0, 6)}</code>
+		</button>
+	`).join('');
+};
+
+const renderVillageInfo = () => {
+	const village = getCurrentVillage();
+	if (elements.villageName) {
+		elements.villageName.textContent = village?.name || 'Village';
+	}
+	if (elements.villageId) {
+		elements.villageId.textContent = village?.id || '--';
+	}
 };
 
 const formatCost = (cost = {}) => Object.entries(cost)
@@ -46,7 +94,8 @@ const formatNumber = (value) => {
 };
 
 const renderResources = () => {
-	const {village, config} = state;
+	const village = getCurrentVillage();
+	const {config} = state;
 
 	elements.resources.innerHTML = config.resources.map(({name, label}) => {
 		const amount = village.resources[name] ?? 0;
@@ -83,7 +132,7 @@ const formatDuration = (seconds) => {
 };
 
 const renderTrainingQueue = () => {
-	const {village} = state;
+	const village = getCurrentVillage();
 	const {training} = village;
 
 	elements.trainingQueue.innerHTML = training.queue.map((entry) => `
@@ -102,7 +151,7 @@ const renderTrainingQueue = () => {
 };
 
 const renderTroops = () => {
-	const {village} = state;
+	const village = getCurrentVillage();
 
 	elements.armyTotal.textContent = village.totalTroops > 0 ? `(${village.totalTroops})` : '';
 
@@ -110,13 +159,11 @@ const renderTroops = () => {
 
 	if (village.troops.length === 0 && village.training.queue.length === 0) {
 		elements.troops.innerHTML = '<p class="empty-state">No troops yet. Build Barracks and recruit units below.</p>';
-
 		return;
 	}
 
 	if (village.troops.length === 0) {
 		elements.troops.innerHTML = '<p class="empty-state">Training in progress…</p>';
-
 		return;
 	}
 
@@ -132,7 +179,7 @@ const renderTroops = () => {
 };
 
 const renderTrainCatalog = () => {
-	const {village} = state;
+	const village = getCurrentVillage();
 	const {training} = village;
 	const barracksNote = training.barracksLevel
 		? `Barracks Lv ${training.barracksLevel} · ${training.secondsPerUnit}s per unit`
@@ -221,7 +268,6 @@ const renderBattleResults = () => {
 	if (!state.lastBattle) {
 		elements.battleResults.classList.add('hidden');
 		elements.battleResults.innerHTML = '';
-
 		return;
 	}
 
@@ -268,7 +314,7 @@ const renderBattleResults = () => {
 };
 
 const renderMockVillages = () => {
-	const {village} = state;
+	const village = getCurrentVillage();
 
 	elements.mockVillages.innerHTML = village.mockVillages.map((mockVillage) => `
 		<article class="mock-village-card" aria-label="${mockVillage.villageName}">
@@ -283,7 +329,7 @@ const renderMockVillages = () => {
 };
 
 const renderBattleSetup = () => {
-	const {village} = state;
+	const village = getCurrentVillage();
 	const {campaign} = village;
 	const target = campaign.target;
 	const buildingSummary = target.buildings.length
@@ -338,7 +384,6 @@ const renderBattleSetup = () => {
 	document.getElementById('send-all')?.addEventListener('click', () => {
 		village.troops.forEach((troop) => {
 			const input = elements.battleSetup.querySelector(`[data-send-unit="${troop.name}"]`);
-
 			if (input) {
 				input.value = troop.count;
 			}
@@ -357,14 +402,14 @@ const readSentTroops = () => Array.from(elements.battleSetup.querySelectorAll('[
 	.filter(({count}) => count > 0);
 
 const manageRefreshTimer = () => {
-	const hasQueue = (state.village?.training?.queue?.length ?? 0) > 0;
+	const village = getCurrentVillage();
+	const hasQueue = (village?.training?.queue?.length ?? 0) > 0;
 
 	if (!hasQueue) {
 		if (state.refreshTimer) {
 			clearInterval(state.refreshTimer);
 			state.refreshTimer = null;
 		}
-
 		return;
 	}
 
@@ -373,12 +418,18 @@ const manageRefreshTimer = () => {
 	}
 
 	state.refreshTimer = setInterval(async () => {
-		if (!state.village?.id) {
+		if (!state.currentVillageId) {
 			return;
 		}
 
 		try {
-			state.village = await api(`/base/village/${state.village.id}`);
+			const updatedVillage = await api(`/base/village/${state.currentVillageId}`);
+			// Update in villages array
+			const index = state.villages.findIndex(v => v.id === updatedVillage.id);
+			if (index >= 0) {
+				state.villages[index] = updatedVillage;
+			}
+			state.village = updatedVillage;
 			renderResources();
 			renderTroops();
 			renderTrainCatalog();
@@ -391,6 +442,8 @@ const manageRefreshTimer = () => {
 };
 
 const render = () => {
+	renderVillageList();
+	renderVillageInfo();
 	renderResources();
 	renderTroops();
 	renderTrainCatalog();
@@ -399,14 +452,24 @@ const render = () => {
 	renderBattleResults();
 	elements.loading.classList.add('hidden');
 	elements.village.classList.remove('hidden');
+	elements.villageBar?.classList.remove('hidden');
 	manageRefreshTimer();
 };
 
-const api = async (url, options) => {
+// Dev auth helper - uses simple custom header
+const api = async (url, options = {}) => {
+	const headers = {'Content-Type': 'application/json'};
+
+	if (state.userId) {
+		headers['X-Dev-User-Id'] = state.userId;
+	}
+
 	const response = await fetch(url, {
-		headers: {'Content-Type': 'application/json'},
-		...options
+		headers,
+		...options,
+		body: options.body ? options.body : undefined
 	});
+
 	const data = await response.json();
 
 	if (!response.ok) {
@@ -416,28 +479,115 @@ const api = async (url, options) => {
 	return data;
 };
 
+// Dev login - just username, creates user if needed
+const devLogin = async (username) => {
+	// Generate a deterministic ID from username for dev
+	const userId = 'dev-' + btoa(username).replace(/[^a-zA-Z0-9]/g, '').substring(0, 16);
+
+	// Set userId first so API calls include the header
+	state.userId = userId;
+
+	// Check if player exists, create if not
+	try {
+		await api('/players/me');
+	} catch {
+		// Player doesn't exist, create them
+		await api('/players', {
+			method: 'POST',
+			body: JSON.stringify({username, userId})
+		});
+	}
+
+	state.username = username;
+	localStorage.setItem('katun-dev-user-id', userId);
+	localStorage.setItem('katun-dev-username', username);
+
+	return {userId, username};
+};
+
+const devLogout = () => {
+	state.userId = null;
+	state.username = null;
+	state.village = null;
+	localStorage.removeItem('katun-dev-user-id');
+	localStorage.removeItem('katun-dev-username');
+	localStorage.removeItem('katun-base-village-id');
+	showAuthUI();
+};
+
+const showAuthUI = () => {
+	elements.authSection.classList.remove('hidden');
+	elements.loading.classList.add('hidden');
+	elements.village.classList.add('hidden');
+	elements.villageBar?.classList.add('hidden');
+};
+
+const showVillageUI = () => {
+	elements.authSection.classList.add('hidden');
+	elements.loading.classList.remove('hidden');
+};
+
+const loadPlayerVillages = async () => {
+	try {
+		const player = await api('/players/me');
+		return player.villages || [];
+	} catch {
+		return [];
+	}
+};
+
+const switchVillage = (villageId) => {
+	state.currentVillageId = villageId;
+	localStorage.setItem('katun-base-village-id', villageId);
+	// Reload the village data
+	loadVillage(villageId);
+};
+
 const loadVillage = async (villageId) => {
-	state.village = await api(`/base/village/${villageId}`);
+	const village = await api(`/base/village/${villageId}`);
+	// Update or add to villages array
+	const index = state.villages.findIndex(v => v.id === villageId);
+	if (index >= 0) {
+		state.villages[index] = village;
+	} else {
+		state.villages.push(village);
+	}
+	state.village = village;
 	render();
 };
 
 const createVillage = async () => {
-	state.village = await api('/base/village', {
+	const village = await api('/base/village', {
 		method: 'POST',
-		body: JSON.stringify({name: 'My Village'})
+		body: JSON.stringify({name: `${state.username}'s Village`})
 	});
-	localStorage.setItem('katun-base-village-id', state.village.id);
+	state.villages.push(village);
+	state.currentVillageId = village.id;
+	state.village = village;
+	localStorage.setItem('katun-base-village-id', village.id);
 	render();
 };
 
 const handleTrain = async (unitName, count) => {
 	clearError();
 
+	const village = getCurrentVillage();
+	if (!village) {
+		showError('No village selected');
+		return;
+	}
+
 	try {
-		state.village = await api(`/base/village/${state.village.id}/train`, {
+		const updatedVillage = await api(`/base/village/${village.id}/train`, {
 			method: 'POST',
 			body: JSON.stringify({unitName, count: Number(count)})
 		});
+		// Update in villages array
+		const index = state.villages.findIndex(v => v.id === updatedVillage.id);
+		if (index >= 0) {
+			state.villages[index] = updatedVillage;
+		}
+		state.village = updatedVillage;
 		render();
 	} catch (error) {
 		showError(error.message);
@@ -447,13 +597,24 @@ const handleTrain = async (unitName, count) => {
 const handleAttack = async () => {
 	clearError();
 
+	const village = getCurrentVillage();
+	if (!village) {
+		showError('No village selected');
+		return;
+	}
+
 	try {
 		const troops = readSentTroops();
-		const response = await api(`/base/village/${state.village.id}/battle`, {
+		const response = await api(`/base/village/${village.id}/battle`, {
 			method: 'POST',
 			body: JSON.stringify({troops})
 		});
 
+		// Update in villages array
+		const index = state.villages.findIndex(v => v.id === response.id);
+		if (index >= 0) {
+			state.villages[index] = response;
+		}
 		state.village = response;
 		state.lastBattle = response.battle;
 		render();
@@ -461,6 +622,22 @@ const handleAttack = async () => {
 		showError(error.message);
 	}
 };
+
+// Event listeners
+elements.loginForm?.addEventListener('submit', async (e) => {
+	e.preventDefault();
+	clearError();
+
+	const username = document.getElementById('username').value.trim();
+
+	try {
+		await devLogin(username);
+		showVillageUI();
+		await initVillage();
+	} catch (error) {
+		showError(error.message);
+	}
+});
 
 elements.trainCatalog.addEventListener('click', (event) => {
 	const trainButton = event.target.closest('[data-action="train"]');
@@ -470,7 +647,6 @@ elements.trainCatalog.addEventListener('click', (event) => {
 		const unitName = trainButton.dataset.unitName;
 		const countInput = elements.trainCatalog.querySelector(`[data-unit-count="${unitName}"]`);
 		handleTrain(unitName, countInput?.value ?? 1);
-
 		return;
 	}
 
@@ -481,30 +657,81 @@ elements.trainCatalog.addEventListener('click', (event) => {
 
 elements.refresh.addEventListener('click', async () => {
 	clearError();
-
+	const village = getCurrentVillage();
+	if (!village) {
+		showError('No village selected');
+		return;
+	}
 	try {
-		await loadVillage(state.village.id);
+		await loadVillage(village.id);
 	} catch (error) {
 		showError(error.message);
 	}
 });
 
+// Village switcher
+elements.villageList?.addEventListener('click', (event) => {
+	const button = event.target.closest('[data-action="switch-village"]');
+	if (!button) return;
+	const villageId = button.dataset.villageId;
+	if (villageId && villageId !== state.currentVillageId) {
+		switchVillage(villageId);
+	}
+});
+
+// New village button
+document.getElementById('new-village')?.addEventListener('click', async () => {
+	clearError();
+	try {
+		await createVillage();
+	} catch (error) {
+		showError(error.message);
+	}
+});
+
+const initVillage = async () => {
+	try {
+		// Load all player villages
+		state.villages = await loadPlayerVillages();
+
+		if (state.villages.length === 0) {
+			// No villages exist, create a new one
+			await createVillage();
+			return;
+		}
+
+		// Determine which village to show
+		const savedVillageId = localStorage.getItem('katun-base-village-id');
+		const validVillage = savedVillageId
+			? state.villages.find(v => v.id === savedVillageId)
+			: state.villages[0];
+
+		if (validVillage) {
+			state.currentVillageId = validVillage.id;
+			// Refresh full village data
+			await loadVillage(validVillage.id);
+		} else {
+			// Saved ID not valid, use first village
+			state.currentVillageId = state.villages[0].id;
+			localStorage.setItem('katun-base-village-id', state.currentVillageId);
+			await loadVillage(state.currentVillageId);
+		}
+	} catch (error) {
+		elements.loading.classList.add('hidden');
+		showError(error.message);
+	}
+};
+
 const init = async () => {
 	try {
 		state.config = await api('/base/config');
-		const savedVillageId = localStorage.getItem('katun-base-village-id');
 
-		if (savedVillageId) {
-			try {
-				await loadVillage(savedVillageId);
-
-				return;
-			} catch {
-				localStorage.removeItem('katun-base-village-id');
-			}
+		if (state.userId) {
+			showVillageUI();
+			await initVillage();
+		} else {
+			showAuthUI();
 		}
-
-		await createVillage();
 	} catch (error) {
 		elements.loading.classList.add('hidden');
 		showError(error.message);
